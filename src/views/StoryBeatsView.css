@@ -1,0 +1,56 @@
+.story-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.story-view__hero {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.story-view__cover {
+  width: 320px;
+  height: 200px;
+  border-radius: 1.2rem;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.story-view__library {
+  border: 1px solid #e4e5e9;
+  border-radius: 1rem;
+  padding: 1rem;
+  background: #f9fafc;
+}
+
+.story-view__beats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.story-view__beat {
+  border: 1px solid #eceef2;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  text-align: left;
+  background: white;
+  cursor: pointer;
+}
+
+.story-view__beat-image {
+  width: 160px;
+  border-radius: 0.75rem;
+  background-size: cover;
+  background-position: center;
+}
+
+.story-view__beat-notes {
+  color: #5a5b63;
+}

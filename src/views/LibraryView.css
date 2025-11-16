@@ -1,0 +1,67 @@
+.library-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.library-view__intro {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: #6e6f76;
+}
+
+.new-story-form {
+  background: #f5f7fb;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  min-width: 320px;
+}
+
+.new-story-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #33343a;
+}
+
+.new-story-form input,
+.new-story-form select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccd1dd;
+  min-width: 220px;
+}
+
+.new-story-form button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  background: #1d49a7;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.library-view__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.library-view__empty {
+  font-style: italic;
+  color: #666772;
+}
