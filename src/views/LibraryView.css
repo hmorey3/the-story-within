@@ -1,0 +1,42 @@
+.library-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.library-view__intro {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: #6e6f76;
+}
+
+.new-story-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  background: #1d49a7;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(30, 48, 80, 0.15);
+}
+
+.library-view__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.library-view__empty {
+  font-style: italic;
+  color: #666772;
+}
