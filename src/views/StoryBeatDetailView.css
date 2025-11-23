@@ -16,6 +16,22 @@
   border-radius: 1.2rem;
   background-size: cover;
   background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-view__image.is-empty {
+  background: linear-gradient(135deg, #f3f4f8, #e9eaf2);
+  border: 1px dashed #cfd3e0;
+}
+
+.editor-view__image-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #6c7280;
+  font-weight: 600;
 }
 
 .editor-view__notes textarea {
@@ -46,6 +62,29 @@
   cursor: not-allowed;
 }
 
+.editor-view__action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editor-view__action-buttons .secondary {
+  background: #f4f6fb;
+}
+
+.editor-view__action-buttons .primary {
+  background: #2846d6;
+  color: white;
+  border-color: #2846d6;
+}
+
+.editor-view__action-buttons .danger {
+  background: transparent;
+  color: #c0392b;
+  border: 1px solid rgba(192, 57, 43, 0.4);
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+}
+
 .editor-view__library {
   border-left: 1px solid #eceef4;
   padding-left: 1rem;
@@ -58,8 +97,13 @@
 
   .editor-view__library {
     border-left: none;
-    border-top: 1px solid #eceef4;
-    padding-left: 0;
-    padding-top: 1rem;
+  border-top: 1px solid #eceef4;
+  padding-left: 0;
+  padding-top: 1rem;
   }
+}
+
+.editor-view__placeholder {
+  color: #5a5b63;
+  margin: 0;
 }

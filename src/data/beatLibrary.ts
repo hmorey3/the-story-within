@@ -73,3 +73,5 @@ export const beatTemplatesByCategory = beatTemplates.reduce<Record<string, BeatT
   },
   {}
 );
+
+export const beatTemplateLookup = new Map<string, BeatTemplate>(beatTemplates.map((template) => [template.id, template]));
