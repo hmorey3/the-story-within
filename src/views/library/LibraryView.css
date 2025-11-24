@@ -32,8 +32,11 @@
 
 .library-view__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 300px));
   gap: 1.25rem;
+  width: 100%;
+  max-width: var(--story-section-max-width, 1100px);
+  margin: 0 auto;
 }
 
 .library-view__empty {
