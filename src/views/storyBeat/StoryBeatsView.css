@@ -12,9 +12,9 @@
 }
 
 .story-view__cover {
-  width: 320px;
-  height: 200px;
-  border-radius: 1.2rem;
+  width: 100px;
+  aspect-ratio: var(--story-cover-aspect, 2 / 3);
+  border-radius: 1rem;
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
@@ -52,34 +52,74 @@
 }
 
 .story-view__beats {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  --beat-card-width: min(240px, 100%);
+  display: grid;
+  row-gap: 1.25rem;
+  column-gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(var(--beat-card-width), var(--beat-card-width)));
+  justify-content: flex-start;
+  justify-items: start;
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid #eceef2;
+  box-shadow: 0 12px 28px rgba(30, 48, 80, 0.08);
+  width: 100%;
+  max-width: var(--story-section-max-width, 1100px);
+  margin: 0 auto;
 }
 
 .story-view__beat {
-  border: 1px solid #eceef2;
-  border-radius: 1rem;
+  border: none;
   padding: 0.75rem;
   display: flex;
-  gap: 1rem;
-  text-align: left;
-  background: white;
+  flex-direction: column;
+  text-align: center;
+  background: none;
   cursor: pointer;
+  width: var(--beat-card-width);
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .story-view__beat-image {
-  width: 160px;
-  height: 100px;
-  border-radius: 0.75rem;
-  background-size: cover;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  background-color: #fff;
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
   flex-shrink: 0;
 }
 
 .story-view__beat-image.is-empty {
   background: linear-gradient(135deg, #f3f4f8, #e9eaf2);
   border: 1px dashed #cfd3e0;
+  border-radius: 0;
+}
+
+.story-view__beat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: center;
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .story-view__beats {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+  }
+
+  .story-view__beat {
+    width: 100%;
+  }
+}
+
+.story-view__beat-content h3 {
+  margin: 0;
 }
 
 .story-view__beat-notes {

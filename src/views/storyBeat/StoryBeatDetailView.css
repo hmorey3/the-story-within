@@ -4,10 +4,27 @@
   gap: 2rem;
 }
 
+.editor-view.is-reading {
+  grid-template-columns: 1fr;
+  justify-content: center;
+}
+
+.editor-view.is-reading .editor-view__canvas {
+  align-items: center;
+  max-width: var(--story-section-max-width, 1100px);
+  margin: 0 auto;
+}
+
+.editor-view.is-reading .beat-card {
+  width: 100%;
+  max-width: var(--story-section-max-width, 1100px);
+}
+
 .editor-view__canvas {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
 }
 
 .beat-card {
@@ -132,7 +149,7 @@
 
 .beat-card--cover .beat-card__visual {
   border: none;
-  width: 100%;
+  width: 500px;
 }
 
 .beat-card--cover .beat-card__visual.is-empty {

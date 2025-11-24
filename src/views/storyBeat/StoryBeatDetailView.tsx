@@ -101,7 +101,7 @@ export function StoryBeatDetailView({
   };
 
   return (
-    <div className="editor-view">
+    <div className={`editor-view ${isEditing ? 'is-editing' : 'is-reading'}`}>
       <div className="editor-view__canvas">
         <button type="button" className="back-link" onClick={handleBack}>
           ← Back to story

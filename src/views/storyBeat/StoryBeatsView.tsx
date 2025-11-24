@@ -45,7 +45,7 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
                 className={`story-view__beat-image ${hasImage ? '' : 'is-empty'}`}
                 style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
               />
-              <div>
+              <div className="story-view__beat-content">
                 <h3>{beat.title || 'Untitled beat'}</h3>
                 {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
               </div>
