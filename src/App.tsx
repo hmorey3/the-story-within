@@ -8,9 +8,11 @@ import { StoryBeatEditorPage } from './pages/StoryBeatEditorPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export function App() {
+  const basename = import.meta.env.BASE_URL ?? '/';
+
   return (
     <StoriesProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<LibraryPage />} />
           <Route path="/stories/:storyId" element={<StoryPage />} />
