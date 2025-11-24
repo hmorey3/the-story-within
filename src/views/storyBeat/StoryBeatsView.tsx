@@ -10,8 +10,6 @@ interface StoryBeatsViewProps {
 }
 
 export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenCover }: StoryBeatsViewProps) {
-  const storyNotes = story.notes ?? '';
-
   return (
     <div className="story-view">
       <button type="button" className="back-link" onClick={onBack}>
@@ -37,7 +35,7 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
 
       <div className="story-view__beats">
         {story.beats.length === 0 && <p>No beats yet. Add your first moment.</p>}
-        {story.beats.map((beat, index) => {
+        {story.beats.map((beat) => {
           const hasImage = Boolean(beat.imageUrl);
           return (
             <button key={beat.id} type="button" className="story-view__beat" onClick={() => onOpenEditor(beat.id)}>
