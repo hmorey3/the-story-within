@@ -24,6 +24,7 @@ export interface StoryBeat {
   imageUrl: string;
   category?: BeatCategory;
   notes: string;
+  isDraft?: boolean;
 }
 
 export interface Story {

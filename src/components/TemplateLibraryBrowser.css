@@ -1,0 +1,91 @@
+.template-library {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.template-library--rail {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.template-library__section {
+  border: none;
+  border-radius: 1rem;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.template-library__section-header h3 {
+  margin: 0;
+}
+
+.template-library__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #7a7c8c;
+  margin: 0 0 0.25rem;
+}
+
+.template-library__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.template-library__card {
+  border: none;
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.5rem;
+  text-align: left;
+  display: flex;
+  gap: 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.template-library__card:is(:hover, :focus-visible) {
+  box-shadow: 0 8px 24px rgba(33, 68, 120, 0.12);
+  transform: translateY(-1px);
+}
+
+.template-library__card.is-selected {
+  box-shadow: 0 0 0 2px rgba(45, 116, 255, 0.3);
+}
+
+.template-library__image {
+  width: 72px;
+  height: 72px;
+  border-radius: 0.75rem;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.template-library__card--stacked {
+  flex-direction: column;
+}
+
+.template-library__card--stacked .template-library__image {
+  width: 100%;
+  height: auto;
+  padding-top: 60%;
+}
+
+.template-library__title {
+  margin: 0;
+  font-weight: 700;
+  color: #1f2130;
+}
+
+.template-library__description {
+  margin: 0.25rem 0 0;
+  color: #5a5c6a;
+  font-size: 0.9rem;
+}

@@ -14,7 +14,6 @@ export function StoryCard({ story, onOpen }: StoryCardProps) {
       <div className="story-card__body">
         <div>
           <h3>{story.title || 'Untitled story'}</h3>
-          <p className="story-card__meta">{story.beats.length} beats</p>
         </div>
       </div>
     </article>
