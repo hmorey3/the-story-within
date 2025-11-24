@@ -23,4 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+# Test output
 test-results/*
+playwright-report/*
