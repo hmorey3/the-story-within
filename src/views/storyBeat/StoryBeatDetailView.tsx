@@ -22,6 +22,7 @@ interface StoryBeatDetailViewProps {
   canGoNext: boolean;
   onSave: (beat: StoryBeat) => StoryBeat;
   onDelete: (beatId: string) => void;
+  onDiscardDraft?: (beatId: string) => void;
 }
 
 export function StoryBeatDetailView({
@@ -36,6 +37,7 @@ export function StoryBeatDetailView({
   canGoNext,
   onSave,
   onDelete,
+  onDiscardDraft,
 }: StoryBeatDetailViewProps) {
   const {
     draft: draftBeat,
@@ -54,7 +56,13 @@ export function StoryBeatDetailView({
   const categoryLabel = draftBeat.category;
 
   const handleBack = () => {
-    attemptExit(onBack);
+    attemptExit(() => {
+      if (draftBeat.isDraft && onDiscardDraft) {
+        onDiscardDraft(draftBeat.id);
+        return;
+      }
+      onBack();
+    });
   };
 
   const handleNavigate = (direction: 'prev' | 'next') => {
@@ -73,6 +81,14 @@ export function StoryBeatDetailView({
       category: template.category,
     }));
     markDirty();
+  };
+
+  const handleCancel = () => {
+    if (draftBeat.isDraft && onDiscardDraft) {
+      attemptExit(() => onDiscardDraft(draftBeat.id));
+      return;
+    }
+    cancelEditing();
   };
 
   const handleSave = () => {
@@ -105,7 +121,7 @@ export function StoryBeatDetailView({
                   Edit beat
                 </button>
               ) : (
-                <DetailEditorActions onCancel={cancelEditing} onSave={handleSave} onDelete={handleDelete} canSave={isDirty} />
+                <DetailEditorActions onCancel={handleCancel} onSave={handleSave} onDelete={handleDelete} canSave={isDirty} />
               )
             }
           />

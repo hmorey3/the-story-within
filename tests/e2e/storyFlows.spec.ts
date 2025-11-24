@@ -1,5 +1,41 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { storyCoverTemplateData } from '../../src/data/storyCoverTemplateData';
+import { beatTemplateData } from '../../src/data/beatTemplateData';
+import type { BeatCategory, StoryCoverCategory } from '../../src/types/story';
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const asRegex = (value: string) => new RegExp(escapeRegExp(value), 'i');
+
+const groupTemplatesByCategory = <T extends { category: string }>(templates: T[]) =>
+  templates.reduce<Map<string, T[]>>((acc, template) => {
+    const next = acc.get(template.category) ?? [];
+    next.push(template);
+    acc.set(template.category, next);
+    return acc;
+  }, new Map());
+
+const coverTemplatesByCategory = groupTemplatesByCategory(storyCoverTemplateData);
+const beatTemplatesByCategory = groupTemplatesByCategory(beatTemplateData);
+
+const getCoverTitle = (category: StoryCoverCategory, index: number) => {
+  const template = coverTemplatesByCategory.get(category)?.[index];
+  if (!template) throw new Error(`Cover template not found for category ${category} at index ${index}`);
+  return template.title;
+};
+
+const getBeatTitle = (category: BeatCategory, index: number) => {
+  const template = beatTemplatesByCategory.get(category)?.[index];
+  if (!template) throw new Error(`Beat template not found for category ${category} at index ${index}`);
+  return template.title;
+};
+
+const firstEgoCoverTitle = getCoverTitle('ego', 0);
+const firstSoulCoverTitle = getCoverTitle('soul', 0);
+const firstReturnBeatTitle = getBeatTitle('return', 0);
+const thirdReturnBeatTitle = getBeatTitle('return', 2);
+const firstDepartureBeatTitle = getBeatTitle('departure', 0);
+const secondDepartureBeatTitle = getBeatTitle('departure', 1);
 
 test.describe('Story flows', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,7 +44,7 @@ test.describe('Story flows', () => {
       localStorage.setItem('tsw-stories', JSON.stringify([]));
     });
     await page.reload();
-    await expect(page.getByRole('heading', { name: 'Your library' })).toBeVisible();
+    await expect(page.getByText('The Story Within')).toBeVisible();
     await expect(page.getByText('No stories yet. Start with your first spark.')).toBeVisible();
   });
 
@@ -16,10 +52,23 @@ test.describe('Story flows', () => {
     test('creates and saves a new story cover', async ({ page }) => {
       const storyName = await createStory(page, {
         notes: 'Testing the cover creation workflow.',
-        coverName: 'Rising Above',
+        coverName: firstEgoCoverTitle,
       });
 
       await expect(page.getByRole('button', { name: new RegExp(storyName, 'i') })).toBeVisible();
+    });
+
+    test('discarding a draft cover returns to the library without persisting it', async ({ page }) => {
+      await page.getByRole('button', { name: '+ New story' }).click();
+      await expect(page.locator('.beat-card__visual')).toBeVisible();
+
+      await Promise.all([
+        page.waitForURL((url) => new URL(url).pathname === '/'),
+        page.getByRole('button', { name: 'Cancel' }).click(),
+      ]);
+
+      await expect(page.locator('.story-card')).toHaveCount(0);
+      await expect(page.getByText('No stories yet. Start with your first spark.')).toBeVisible();
     });
 
     test('cancels a draft story without persisting it', async ({ page }) => {
@@ -36,36 +85,38 @@ test.describe('Story flows', () => {
     });
 
     test('edits an existing cover and persists changes', async ({ page }) => {
-      const storyName = await createStory(page, { notes: 'Initial notes', coverName: 'Road to Peak' });
+      const storyName = await createStory(page, { notes: 'Initial notes', coverName: firstEgoCoverTitle });
       await openStory(page, storyName);
+      await page.getByRole('button', { name: /View cover/i }).click();
       await page.getByRole('button', { name: /Edit cover/i }).click();
 
       await page.getByLabel('Your story notes').fill('Updated intentions for the journey.');
-      await page.getByRole('button', { name: /Quiet Balance/ }).click();
+      await page.getByRole('button', { name: asRegex(firstSoulCoverTitle) }).click();
       await page.getByRole('button', { name: 'Save' }).click();
 
       await waitForStoryView(page);
       await returnToLibrary(page);
-      await expect(page.getByRole('button', { name: /Quiet Balance/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: asRegex(firstSoulCoverTitle) })).toBeVisible();
 
-      await openStory(page, 'Quiet Balance');
-      await expect(page.getByRole('heading', { name: 'Quiet Balance' })).toBeVisible();
+      await openStory(page, firstSoulCoverTitle);
+      await expect(page.getByRole('heading', { name: firstSoulCoverTitle })).toBeVisible();
       await expect(page.getByText('Updated intentions for the journey.')).toBeVisible();
 
       await page.reload();
-      await expect(page.getByRole('heading', { name: 'Quiet Balance' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: firstSoulCoverTitle })).toBeVisible();
       await expect(page.getByText('Updated intentions for the journey.')).toBeVisible();
     });
 
     test('deletes a story from the cover editor', async ({ page }) => {
-      const storyName = await createStory(page, { notes: 'Delete me', coverName: 'Early Light' });
+      const storyName = await createStory(page, { notes: 'Delete me', coverName: firstSoulCoverTitle });
       await openStory(page, storyName);
+      await page.getByRole('button', { name: /View cover/i }).click();
       await page.getByRole('button', { name: /Edit cover/i }).click();
 
       page.once('dialog', (dialog) => dialog.accept());
       await page.getByRole('button', { name: 'Delete' }).click();
 
-      await expect(page.getByRole('heading', { name: 'Your library' })).toBeVisible();
+      await expect(page.getByText('The Story Within')).toBeVisible();
       await expect(page.locator('.story-card')).toHaveCount(0);
       await expect(page.getByText('No stories yet. Start with your first spark.')).toBeVisible();
     });
@@ -73,14 +124,14 @@ test.describe('Story flows', () => {
 
   test.describe('Beat workflows', () => {
     test('adds a beat from the library and saves it', async ({ page }) => {
-      const storyName = await createStory(page, { notes: 'Ready for beats', coverName: 'Safe Harbor' });
+      const storyName = await createStory(page, { notes: 'Ready for beats', coverName: firstEgoCoverTitle });
       await openStory(page, storyName);
       await expect(page.getByRole('heading', { name: storyName })).toBeVisible();
 
       await page.getByRole('button', { name: /New Story Beat/i }).click();
 
       await expect(page.getByRole('button', { name: 'Save' })).toBeVisible();
-      await page.getByRole('button', { name: /Glimpse of Dawn/ }).click();
+      await page.getByRole('button', { name: asRegex(firstReturnBeatTitle) }).click();
       await page.getByLabel('Your notes').fill('Fresh beat from the hero’s journey.');
 
       await page.getByRole('button', { name: 'Save' }).click();
@@ -90,14 +141,14 @@ test.describe('Story flows', () => {
 
       const beats = page.locator('.story-view__beat');
       await expect(beats).toHaveCount(1);
-      await expect(page.getByText('Glimpse of Dawn')).toBeVisible();
+      await expect(page.getByText(firstReturnBeatTitle)).toBeVisible();
     });
 
     test('edits an existing beat and persists changes', async ({ page }) => {
-      const storyName = await createStory(page, { notes: 'Needs beats', coverName: 'Return Home' });
+      const storyName = await createStory(page, { notes: 'Needs beats', coverName: firstEgoCoverTitle });
       await openStory(page, storyName);
       await addBeatToStory(page, {
-        templateName: 'Call to Adventure',
+        templateName: firstDepartureBeatTitle,
         notes: 'Starting point.',
       });
 
@@ -106,7 +157,7 @@ test.describe('Story flows', () => {
 
       await page.getByRole('button', { name: 'Edit' }).click();
       await page.getByLabel('Your notes').fill('Refocusing the journey on gratitude.');
-      await page.getByRole('button', { name: /New Ground/ }).click();
+      await page.getByRole('button', { name: asRegex(thirdReturnBeatTitle) }).click();
 
       await page.getByRole('button', { name: 'Save' }).click();
       await expect(page.getByRole('button', { name: 'Save' })).toHaveCount(0);
@@ -114,7 +165,7 @@ test.describe('Story flows', () => {
       await navigateBackToStory(page);
 
       const updatedBeat = page.locator('.story-view__beat').first();
-      await expect(updatedBeat.getByRole('heading', { name: 'New Ground' })).toBeVisible();
+      await expect(updatedBeat.getByRole('heading', { name: thirdReturnBeatTitle })).toBeVisible();
       await expect(updatedBeat.getByText('Refocusing the journey on gratitude.')).toBeVisible();
 
       await updatedBeat.click();
@@ -122,10 +173,10 @@ test.describe('Story flows', () => {
     });
 
     test('guards against losing unsaved beat edits', async ({ page }) => {
-      const storyName = await createStory(page, { coverName: 'Wide Open' });
+      const storyName = await createStory(page, { coverName: firstEgoCoverTitle });
       await openStory(page, storyName);
       await addBeatToStory(page, {
-        templateName: 'Call to Adventure',
+        templateName: firstDepartureBeatTitle,
         notes: 'Committed notes',
       });
 
@@ -142,15 +193,30 @@ test.describe('Story flows', () => {
       await expect(page.locator('.story-view__beat').first().getByText('Unsaved text')).toHaveCount(0);
     });
 
+    test('discarding a new beat removes the draft and returns to the story', async ({ page }) => {
+      const storyName = await createStory(page, { coverName: firstEgoCoverTitle });
+      await openStory(page, storyName);
+
+      await page.getByRole('button', { name: /New Story Beat/i }).click();
+      await expect(page.getByLabel('Your notes')).toBeVisible();
+
+      await Promise.all([
+        page.waitForURL(storyPathRegex),
+        page.getByRole('button', { name: 'Cancel' }).click(),
+      ]);
+
+      await expect(page.locator('.story-view__beat')).toHaveCount(0);
+    });
+
     test('deletes a beat and returns to the story view', async ({ page }) => {
-      const storyName = await createStory(page, { coverName: 'Center Stage' });
+      const storyName = await createStory(page, { coverName: firstEgoCoverTitle });
       await openStory(page, storyName);
       await addBeatToStory(page, {
-        templateName: 'Call to Adventure',
+        templateName: firstDepartureBeatTitle,
         notes: 'First beat',
       });
       await addBeatToStory(page, {
-        templateName: 'Crossing the Threshold',
+        templateName: secondDepartureBeatTitle,
         notes: 'Second beat',
       });
 
@@ -169,7 +235,7 @@ test.describe('Story flows', () => {
 
 async function createStory(
   page: Page,
-  { notes = '', coverName = 'Road to Peak' }: { notes?: string; coverName?: string }
+  { notes = '', coverName = firstEgoCoverTitle }: { notes?: string; coverName?: string }
 ) {
   await page.getByRole('button', { name: '+ New story' }).click();
 

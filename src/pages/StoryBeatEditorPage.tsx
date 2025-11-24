@@ -30,6 +30,11 @@ export function StoryBeatEditorPage() {
     );
   }
 
+  const discardDraftBeat = (targetBeatId: string) => {
+    deleteStoryBeat(story.id, targetBeatId);
+    navigate(`/stories/${story.id}`);
+  };
+
   return (
     <main className="page">
       <StoryBeatDetailView
@@ -39,6 +44,7 @@ export function StoryBeatEditorPage() {
         totalBeats={story.beats.length}
         startEditing={startEditing}
         onBack={() => navigate(`/stories/${story.id}`)}
+        onDiscardDraft={discardDraftBeat}
         canGoPrev={beatIndex > 0}
         canGoNext={beatIndex < story.beats.length - 1}
         onNavigate={(direction) => {

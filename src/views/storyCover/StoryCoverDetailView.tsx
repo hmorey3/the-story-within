@@ -45,6 +45,14 @@ export function StoryCoverDetailView({ story, onBack, onSave, onDelete, startEdi
     attemptExit(onBack);
   };
 
+  const handleCancel = () => {
+    if (story.isDraft) {
+      attemptExit(onBack);
+      return;
+    }
+    cancelEditing();
+  };
+
   const handleSave = () => {
     onSave({ title: displayTitle, notes: draft.notes, coverTemplateId: draft.selectedCoverId });
     applySaved(draft);
@@ -75,7 +83,7 @@ export function StoryCoverDetailView({ story, onBack, onSave, onDelete, startEdi
                   Edit cover
                 </button>
               ) : (
-                <DetailEditorActions onCancel={cancelEditing} onSave={handleSave} onDelete={handleDelete} canSave={isDirty} />
+                <DetailEditorActions onCancel={handleCancel} onSave={handleSave} onDelete={handleDelete} canSave={isDirty} />
               )
             }
           />

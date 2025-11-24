@@ -73,7 +73,8 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
   };
 
   const addBeatToStory = (storyId: string, templateId?: string) => {
-    const beat = templateId ? buildBeatFromTemplate(templateId) : buildBlankBeat();
+    const baseBeat = templateId ? buildBeatFromTemplate(templateId) : buildBlankBeat();
+    const beat: StoryBeat = { ...baseBeat, isDraft: true };
     persistStories((current) =>
       current.map((story) =>
         story.id === storyId ? { ...story, beats: [...story.beats, beat] } : story
@@ -127,7 +128,7 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
         if (story.id !== storyId) return story;
         const beats = story.beats.map((existing) => {
           if (existing.id !== beat.id) return existing;
-          savedBeat = { ...existing, ...beat };
+          savedBeat = { ...existing, ...beat, isDraft: false };
           return savedBeat;
         });
         return { ...story, beats };
@@ -199,7 +200,7 @@ export function useStories() {
   return context;
 }
 
-function buildBeatFromTemplate(templateId: string) {
+function buildBeatFromTemplate(templateId: string): StoryBeat {
   const template = templateLookup.get(templateId);
   if (!template) {
     throw new Error(`Unknown beat template: ${templateId}`);
@@ -211,6 +212,7 @@ function buildBeatFromTemplate(templateId: string) {
     imageUrl: template.imageUrl,
     category: template.category,
     notes: '',
+    isDraft: false,
   };
 }
 
@@ -222,6 +224,7 @@ function buildBlankBeat(): StoryBeat {
     imageUrl: '',
     category: undefined,
     notes: '',
+    isDraft: false,
   };
 }
 

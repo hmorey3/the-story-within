@@ -23,9 +23,7 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
           style={story.imageUrl ? { backgroundImage: `url(${story.imageUrl})` } : undefined}
         />
         <div>
-          <p className="eyebrow">Story</p>
           <h1>{story.title}</h1>
-          <p>{story.beats.length} beats captured</p>
           <div className="story-view__actions">
             <button type="button" onClick={onAddBeat}>
               New Story Beat
@@ -34,7 +32,6 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
               View cover
             </button>
           </div>
-          {storyNotes && <p className="story-view__notes">{storyNotes}</p>}
         </div>
       </header>
 
@@ -49,9 +46,8 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
                 style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
               />
               <div>
-                <p className="eyebrow">Beat {index + 1}</p>
                 <h3>{beat.title || 'Untitled beat'}</h3>
-                <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>
+                {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
               </div>
             </button>
           );
