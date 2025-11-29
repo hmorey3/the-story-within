@@ -1,5 +1,6 @@
 import './StoryBeatsView.css';
 import type { Story } from '../../types/story';
+import { DecoratedCard } from '../../components/DecoratedCard';
 
 interface StoryBeatsViewProps {
   story: Story;
@@ -33,24 +34,26 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
         </div>
       </header>
 
-      <div className="story-view__beats">
-        {story.beats.length === 0 && <p>No beats yet. Add your first moment.</p>}
-        {story.beats.map((beat) => {
-          const hasImage = Boolean(beat.imageUrl);
-          return (
-            <button key={beat.id} type="button" className="story-view__beat" onClick={() => onOpenEditor(beat.id)}>
-              <div
-                className={`story-view__beat-image ${hasImage ? '' : 'is-empty'}`}
-                style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
-              />
-              <div className="story-view__beat-content">
-                <h3>{beat.title || 'Untitled beat'}</h3>
-                {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      <DecoratedCard className="story-beats-card">
+        <div className="story-view__beats">
+          {story.beats.length === 0 && <p>No beats yet. Add your first moment.</p>}
+          {story.beats.map((beat) => {
+            const hasImage = Boolean(beat.imageUrl);
+            return (
+              <button key={beat.id} type="button" className="story-view__beat" onClick={() => onOpenEditor(beat.id)}>
+                <div
+                  className={`story-view__beat-image ${hasImage ? '' : 'is-empty'}`}
+                  style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
+                />
+                <div className="story-view__beat-content">
+                  <h3>{beat.title || 'Untitled beat'}</h3>
+                  {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </DecoratedCard>
     </div>
   );
 }

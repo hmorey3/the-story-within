@@ -9,6 +9,7 @@ import { DetailEditorHeader } from '../../components/detail-editor/DetailEditorH
 import { useDetailEditorState } from '../../hooks/useDetailEditorState';
 import { DetailEditorSidebar } from '../../components/detail-editor/DetailEditorSidebar';
 import { DetailEditorActions } from '../../components/detail-editor/DetailEditorActions';
+import { DecoratedCard } from '../../components/DecoratedCard';
 
 interface StoryBeatDetailViewProps {
   storyTitle: string;
@@ -106,7 +107,7 @@ export function StoryBeatDetailView({
         <button type="button" className="back-link" onClick={handleBack}>
           ← Back to story
         </button>
-        <section className="beat-card beat-card--cover">
+        <DecoratedCard className="beat-card beat-card--cover">
           <DetailEditorHeader
             chips={
               <>
@@ -145,7 +146,7 @@ export function StoryBeatDetailView({
           </div>
 
           <DetailEditorFooter canGoPrev={canGoPrev} canGoNext={canGoNext} onNavigate={handleNavigate} />
-        </section>
+        </DecoratedCard>
       </div>
       {isEditing && (
         <DetailEditorSidebar>

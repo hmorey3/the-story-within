@@ -21,8 +21,8 @@
 }
 
 .story-view__cover.is-empty {
-  background: linear-gradient(135deg, #f3f4f8, #e9eaf2);
-  border: 1px dashed #cfd3e0;
+  background: linear-gradient(135deg, var(--color-bg-empty-start), var(--color-bg-empty-end));
+  border: 1px dashed var(--color-border-dashed);
 }
 
 .story-view__actions {
@@ -35,20 +35,29 @@
 .story-view__actions button {
   border-radius: 999px;
   padding: 0.6rem 1.2rem;
-  border: 1px solid #c6cbe0;
-  background: white;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-bg-surface);
   cursor: pointer;
 }
 
 .story-view__actions .secondary {
-  background: #f4f6fb;
+  background: var(--color-bg-soft);
 }
 
 .story-view__library {
-  border: 1px solid #e4e5e9;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 1rem;
   padding: 1rem;
-  background: #f9fafc;
+  background: var(--color-bg-card);
+}
+
+.story-beats-card {
+  max-width: var(--story-section-max-width, 1100px);
+  margin: 0 auto;
+}
+
+.story-beats-card .decorated-card__body {
+  padding: 1.5rem;
 }
 
 .story-view__beats {
@@ -59,14 +68,6 @@
   grid-template-columns: repeat(auto-fit, minmax(var(--beat-card-width), var(--beat-card-width)));
   justify-content: flex-start;
   justify-items: start;
-  background: white;
-  border-radius: 1.25rem;
-  padding: 1.5rem;
-  border: 1px solid #eceef2;
-  box-shadow: 0 12px 28px rgba(30, 48, 80, 0.08);
-  width: 100%;
-  max-width: var(--story-section-max-width, 1100px);
-  margin: 0 auto;
 }
 
 .story-view__beat {
@@ -86,16 +87,17 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 0;
-  background-color: #fff;
+  background-color: var(--color-bg-surface);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   flex-shrink: 0;
+  filter: grayscale(1) brightness(110%) contrast(1000%);
 }
 
 .story-view__beat-image.is-empty {
-  background: linear-gradient(135deg, #f3f4f8, #e9eaf2);
-  border: 1px dashed #cfd3e0;
+  background: linear-gradient(135deg, var(--color-bg-empty-start), var(--color-bg-empty-end));
+  border: 1px dashed var(--color-border-dashed);
   border-radius: 0;
 }
 
@@ -123,5 +125,5 @@
 }
 
 .story-view__beat-notes {
-  color: #5a5b63;
+  color: var(--color-text-muted);
 }

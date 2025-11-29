@@ -14,7 +14,7 @@ export function NotFoundPage({ message = 'Screen not found.', actionLabel = 'Ret
       onAction();
       return;
     }
-    navigate('/');
+    navigate('/library');
   };
 
   return (

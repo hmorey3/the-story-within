@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { beatTemplates } from '../data/beatLibrary';
-import { coverTemplates, coverTemplateLookup } from '../data/storyCoverLibrary';
+import { coverTemplateLookup } from '../data/storyCoverLibrary';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import type { BeatTemplate, Story, StoryBeat } from '../types/story';
 
@@ -23,21 +23,7 @@ const StoriesContext = createContext<StoriesContextValue | undefined>(undefined)
 
 const templateLookup = new Map<string, BeatTemplate>(beatTemplates.map((template) => [template.id, template]));
 
-const defaultCover = coverTemplates[0];
-
-const initialStories: Story[] = [
-  {
-    id: createId(),
-    title: 'The Leap to Florence',
-    imageUrl: defaultCover.imageUrl,
-    coverTemplateId: defaultCover.id,
-    coverCategory: defaultCover.category,
-    createdAt: new Date().toISOString(),
-    notes: '',
-    isDraft: false,
-    beats: ['departure-1', 'descent-2', 'return-2'].map((templateId) => buildBeatFromTemplate(templateId)),
-  },
-];
+const initialStories: Story[] = [];
 
 export function StoriesProvider({ children }: { children: ReactNode }) {
   const [stories, setStories] = useLocalStorage<Story[]>('tsw-stories', initialStories);

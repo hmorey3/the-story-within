@@ -28,7 +28,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.75rem;
-  color: #7a7c8c;
+  color: var(--color-text-browser-label);
   margin: 0 0 0.25rem;
 }
 
@@ -41,7 +41,7 @@
 .template-library__card {
   border: none;
   border-radius: 0.9rem;
-  background: #fff;
+  background: var(--color-bg-surface);
   padding: 0.5rem;
   text-align: left;
   display: flex;
@@ -81,11 +81,11 @@
 .template-library__title {
   margin: 0;
   font-weight: 700;
-  color: #1f2130;
+  color: var(--color-text-browser-heading);
 }
 
 .template-library__description {
   margin: 0.25rem 0 0;
-  color: #5a5c6a;
+  color: var(--color-text-browser-subtle);
   font-size: 0.9rem;
 }

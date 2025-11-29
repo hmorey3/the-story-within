@@ -39,7 +39,7 @@ const secondDepartureBeatTitle = getBeatTitle('departure', 1);
 
 test.describe('Story flows', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/library');
     await page.evaluate(() => {
       localStorage.setItem('tsw-stories', JSON.stringify([]));
     });
@@ -63,7 +63,7 @@ test.describe('Story flows', () => {
       await expect(page.locator('.beat-card__visual')).toBeVisible();
 
       await Promise.all([
-        page.waitForURL((url) => new URL(url).pathname === '/'),
+        page.waitForURL((url) => new URL(url).pathname === '/library'),
         page.getByRole('button', { name: 'Cancel' }).click(),
       ]);
 
@@ -283,7 +283,7 @@ async function navigateBackToStory(page: Page) {
 
 async function returnToLibrary(page: Page) {
   await Promise.all([
-    page.waitForURL((url) => new URL(url).pathname === '/'),
+    page.waitForURL((url) => new URL(url).pathname === '/library'),
     page.getByRole('button', { name: '← Library' }).click(),
   ]);
 }

@@ -14,7 +14,7 @@ export function StoryCoverPage() {
   const startEditing = Boolean((location.state as { startEditing?: boolean } | null)?.startEditing);
 
   if (!story || !storyId) {
-    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/')} />;
+    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/library')} />;
   }
 
   return (
@@ -25,7 +25,7 @@ export function StoryCoverPage() {
         onBack={() => {
           if (story.isDraft) {
             deleteStory(story.id);
-            navigate('/');
+            navigate('/library');
             return;
           }
           navigate(`/stories/${story.id}`);
@@ -41,7 +41,7 @@ export function StoryCoverPage() {
         }}
         onDelete={() => {
           deleteStory(story.id);
-          navigate('/');
+          navigate('/library');
         }}
       />
     </main>

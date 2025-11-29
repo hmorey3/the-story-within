@@ -14,7 +14,7 @@ export function StoryBeatEditorPage() {
   const startEditing = Boolean((location.state as { startEditing?: boolean } | null)?.startEditing);
 
   if (!story || !storyId) {
-    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/')} />;
+    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/library')} />;
   }
 
   const beatIndex = story.beats.findIndex((entry) => entry.id === beatId);

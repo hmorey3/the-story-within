@@ -1,0 +1,127 @@
+.bookshelf-page {
+  background: #fdfcf7;
+}
+
+.bookshelf-layout {
+  width: 100%;
+  max-width: var(--story-section-max-width, 1100px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bookshelf__intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bookshelf {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 0;
+  width: 100%;
+  justify-content: stretch;
+  align-items: stretch;
+  background: linear-gradient(
+      90deg,
+      rgba(70, 52, 32, 0.25) 0,
+      rgba(70, 52, 32, 0.25) 1px,
+      transparent 1px
+    ),
+    #fff;
+  background-size: calc(100% / 5) 100%;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.03);
+  min-height: 70vh;
+}
+
+.book-spine {
+  position: relative;
+  width: 100%;
+  min-height: clamp(320px, 65vh, 560px);
+  border: 1px solid rgba(70, 52, 32, 0.3);
+  background: #e9e9e9;
+  color: #4e3923;
+  font-family: 'Cinzel Decorative', 'Uncial Antiqua', 'Times New Roman', serif;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.5rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  --book-index: 0;
+}
+
+.book-spine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.book-spine:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(15, 10, 5, 0.15);
+}
+
+.book-spine__content {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  z-index: 1;
+  transition: opacity 200ms ease;
+}
+
+.book-spine__index {
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+}
+
+.book-spine__title {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.book-spine__cta {
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+}
+
+.book-spine__cover {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.book-spine:hover .book-spine__cover {
+  opacity: 1 !important;
+}
+
+.book-spine:hover .book-spine__content {
+  opacity: 0;
+}
+
+.book-spine--placeholder {
+  background: none;
+  border-style: dashed;
+  pointer-events: none;
+}
+
+.book-spine--placeholder::after {
+  display: none;
+}

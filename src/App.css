@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Runtime';
+  src: url('/src/assets/fonts/RuntimeRegular-m2Odx.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Bemirs';
+  src: url('/src/assets/fonts/BemirsDemoVersionRegular-X361d.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .page {
   max-width: var(--page-max-width, 1100px);
   margin: 0 auto;
@@ -14,8 +28,31 @@ a {
 .back-link {
   border: none;
   background: none;
-  color: #1d49a7;
+  color: var(--color-primary);
   font-weight: 600;
   cursor: pointer;
   align-self: flex-start;
+}
+
+
+.home-hero {
+  container-type: size;            /* enables cqh unit for children */
+  min-height: 500px;
+  height: 100vh;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  font-family: 'Runtime', 'Bemirs', serif;
+  text-align: center;
+  line-height: 1;
+}
+
+.home-hero__title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  margin: 20cqh 0 0;
+  letter-spacing: 0.15em;
 }

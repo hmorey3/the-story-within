@@ -1,0 +1,66 @@
+.book-spine--create-only {
+  background: #fefcfa;
+  border-style: solid;
+  border-color: rgba(72, 52, 35, 0.25);
+  overflow: hidden;
+  position: relative;
+}
+
+.book-spine--create-only:hover {
+  transform: translateY(-2px);
+}
+
+.book-spine__create-layers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  transition: opacity 250ms ease;
+}
+
+.book-spine__create-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.85;
+  transition: opacity var(--create-fade-duration, 700ms) ease;
+}
+
+.book-spine__create-image--next {
+  opacity: 0;
+}
+
+.book-spine__create-image--next[data-visible='true'] {
+  opacity: 0.85;
+}
+
+.book-spine__create-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  transition: opacity 250ms ease;
+  z-index: 2;
+}
+
+.book-spine--create-only:hover .book-spine__create-overlay {
+  opacity: 1;
+}
+
+.book-spine--create-only:hover .book-spine__create-layers {
+  opacity: 0;
+}
+
+.book-spine__icon {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #4e3923;
+  line-height: 1;
+  pointer-events: none;
+  position: relative;
+  z-index: 3;
+  transition: color 220ms ease;
+}
+
+.book-spine--create-only:hover .book-spine__icon {
+  color: #3a2b1a;
+}

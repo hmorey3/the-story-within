@@ -12,14 +12,14 @@ export function StoryPage() {
   const story = useMemo(() => stories.find((entry) => entry.id === storyId) ?? null, [stories, storyId]);
 
   if (!story || !storyId) {
-    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/')} />;
+    return <NotFoundPage message="Story not found." actionLabel="Return to library" onAction={() => navigate('/library')} />;
   }
 
   return (
     <main className="page">
       <StoryBeatsView
         story={story}
-        onBack={() => navigate('/')}
+        onBack={() => navigate('/library')}
         onOpenEditor={(beatId) => navigate(`/stories/${story.id}/beats/${beatId}`)}
         onAddBeat={() => {
           const beat = addBeatToStory(story.id);
