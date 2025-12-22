@@ -1,6 +1,7 @@
 import './StoryBeatsView.css';
 import type { Story } from '../../types/story';
-import { DecoratedCard } from '../../components/DecoratedCard';
+import bookGraphic from '../../assets/book.png';
+import { TriangleBeatPager } from '../../components/TriangleBeatPager';
 
 interface StoryBeatsViewProps {
   story: Story;
@@ -17,12 +18,8 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
         ← Library
       </button>
       <header className="story-view__hero">
-        <div
-          className={`story-view__cover ${story.imageUrl ? '' : 'is-empty'}`}
-          style={story.imageUrl ? { backgroundImage: `url(${story.imageUrl})` } : undefined}
-        />
         <div>
-          <h1>{story.title}</h1>
+          <p className="eyebrow">A Story Of {story.title}</p>
           <div className="story-view__actions">
             <button type="button" onClick={onAddBeat}>
               New Story Beat
@@ -34,26 +31,32 @@ export function StoryBeatsView({ story, onBack, onOpenEditor, onAddBeat, onOpenC
         </div>
       </header>
 
-      <DecoratedCard className="story-beats-card">
-        <div className="story-view__beats">
-          {story.beats.length === 0 && <p>No beats yet. Add your first moment.</p>}
-          {story.beats.map((beat) => {
-            const hasImage = Boolean(beat.imageUrl);
-            return (
-              <button key={beat.id} type="button" className="story-view__beat" onClick={() => onOpenEditor(beat.id)}>
-                <div
-                  className={`story-view__beat-image ${hasImage ? '' : 'is-empty'}`}
-                  style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
-                />
-                <div className="story-view__beat-content">
-                  <h3>{beat.title || 'Untitled beat'}</h3>
-                  {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </DecoratedCard>
+      <div className="story-view__beats-wrapper">
+        {story.beats.length === 0 ? (
+          <p>No beats yet. Add your first moment.</p>
+        ) : (
+          <TriangleBeatPager
+            beats={story.beats}
+            renderBeat={(beat) => {
+              const hasImage = Boolean(beat.imageUrl);
+              return (
+                <button key={beat.id} type="button" className="story-view__beat" onClick={() => onOpenEditor(beat.id)}>
+                  <div
+                    className={`story-view__beat-image ${hasImage ? '' : 'is-empty'}`}
+                    style={hasImage ? { backgroundImage: `url(${beat.imageUrl})` } : undefined}
+                  />
+                  <div className="story-view__beat-content">
+                    <h3>{beat.title || 'Untitled beat'}</h3>
+                    {beat.notes && <p className="story-view__beat-notes">{beat.notes || 'Tap to add your notes'}</p>}
+                  </div>
+                </button>
+              );
+            }}
+          />
+        )}
+      </div>
+
+      <img src={bookGraphic} alt="" aria-hidden className="story-view__book" />
     </div>
   );
 }

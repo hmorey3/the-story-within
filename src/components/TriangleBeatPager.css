@@ -1,0 +1,115 @@
+.triangle-pager {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0;
+  min-height: clamp(380px, 48vh, 520px);
+  justify-content: flex-start;
+}
+
+.triangle-pager__grid {
+  position: relative;
+  width: min(520px, 100%);
+  height: clamp(380px, 50vh, 460px);
+  padding: 1.25rem 1rem 1.5rem;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.triangle-pager__cell {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  width: min(180px, 40vw);
+  padding-bottom: 1.8rem;
+  transition: transform 150ms ease;
+}
+
+.triangle-pos-top {
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 2;
+}
+
+.triangle-pos-left {
+  top: 78%;
+  left: 35%;
+  transform: translate(-50%, -50%);
+}
+
+.triangle-pos-right {
+  top: 78%;
+  left: 65%;
+  transform: translate(-50%, -50%);
+}
+
+.triangle-pos-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.triangle-pager__arrow {
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-surface, #fff);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  margin: 0.75rem 0;
+}
+
+.triangle-pager__arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+.triangle-pager__arrow:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.triangle-pager__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.triangle-pager__page {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 520px) {
+  .triangle-pager__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    gap: 0.75rem;
+  }
+
+  .triangle-pos-top,
+  .triangle-pos-center {
+    grid-column: 1 / span 2;
+  }
+
+  .triangle-pos-left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .triangle-pos-right {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}

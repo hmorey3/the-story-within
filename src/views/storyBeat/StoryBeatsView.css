@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: clamp(320px, 45vh, 520px); /* space for the fixed book graphic */
 }
 
 .story-view__hero {
@@ -9,20 +12,6 @@
   gap: 1.5rem;
   flex-wrap: wrap;
   align-items: center;
-}
-
-.story-view__cover {
-  width: 100px;
-  aspect-ratio: var(--story-cover-aspect, 2 / 3);
-  border-radius: 1rem;
-  background-size: cover;
-  background-position: center;
-  flex-shrink: 0;
-}
-
-.story-view__cover.is-empty {
-  background: linear-gradient(135deg, var(--color-bg-empty-start), var(--color-bg-empty-end));
-  border: 1px dashed var(--color-border-dashed);
 }
 
 .story-view__actions {
@@ -51,23 +40,14 @@
   background: var(--color-bg-card);
 }
 
-.story-beats-card {
-  max-width: var(--story-section-max-width, 1100px);
-  margin: 0 auto;
-}
-
-.story-beats-card .decorated-card__body {
-  padding: 1.5rem;
-}
-
-.story-view__beats {
-  --beat-card-width: min(240px, 100%);
-  display: grid;
-  row-gap: 1.25rem;
-  column-gap: 0.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(var(--beat-card-width), var(--beat-card-width)));
-  justify-content: flex-start;
-  justify-items: start;
+.story-view__beats-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  align-self: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
 }
 
 .story-view__beat {
@@ -78,9 +58,11 @@
   text-align: center;
   background: none;
   cursor: pointer;
-  width: var(--beat-card-width);
+  width: 100%;
+  max-width: 210px;
   gap: 0.75rem;
   align-items: center;
+  position: relative;
 }
 
 .story-view__beat-image {
@@ -109,15 +91,23 @@
   align-items: center;
 }
 
-@media (max-width: 520px) {
-  .story-view__beats {
-    grid-template-columns: minmax(0, 1fr);
-    justify-content: stretch;
-  }
+.story-view__book {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--story-section-max-width, 1100px);
+  max-width: 100%;
+  max-height: clamp(240px, 40vh, 480px);
+  top: max(0px, calc(1100px - clamp(240px, 70vh, 580px)));
+  height: auto;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 0;
+}
 
-  .story-view__beat {
-    width: 100%;
-  }
+.story-view > *:not(.story-view__book) {
+  position: relative;
+  z-index: 1;
 }
 
 .story-view__beat-content h3 {

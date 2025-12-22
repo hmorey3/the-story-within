@@ -16,11 +16,11 @@
   --color-chip-accent-text: #a2531a;
 
   /* Backgrounds */
-  --color-bg-root: #fdfdfd;
+  --color-bg-root: #ffffff;
   --color-bg-body: var(--color-bg-root);
   --color-bg-surface: #ffffff;
   --color-bg-surface-alt: var(--color-bg-surface);
-  --color-bg-card: #f9fafc;
+  --color-bg-card: var(--color-bg-root);
   --color-bg-soft: #f4f6fb;
   --color-bg-chip-pill: #f5f6ff;
   --color-bg-chip-soft: #eff1ff;

@@ -1,0 +1,105 @@
+.circular-grid {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.circular-grid__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100vh - 500px);
+  max-width: var(--story-section-max-width, 1100px);
+  width: 100%;
+  padding: 1rem 0.5rem 1.25rem;
+  background: var(--color-bg-card, #f6f8fc);
+  overflow-y: auto;
+  position: relative;
+  isolation: isolate;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* .circular-grid__scroll::before, */
+.circular-grid__scroll::after {
+  content: '';
+  position: sticky;
+  display: block;
+  left: 0;
+  right: 0;
+  height: 36px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.circular-grid__scroll::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-card, #f6f8fc),
+    rgba(246, 248, 252, 0)
+  );
+}
+
+.circular-grid__scroll::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--color-bg-card, #f6f8fc),
+    rgba(246, 248, 252, 0)
+  );
+}
+
+.circular-grid__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.circular-grid__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(140px, 1fr);
+  gap: 1.25rem;
+  justify-content: center;
+  align-items: start;
+  padding-inline: var(--row-indent, 0);
+}
+
+.circular-grid__row--1,
+.circular-grid__row--5 {
+  --row-indent: clamp(100px, 14vw, 220px);
+}
+
+.circular-grid__row--2,
+.circular-grid__row--4 {
+  --row-indent: clamp(60px, 10vw, 160px);
+}
+
+.circular-grid__row--3 {
+  --row-indent: clamp(20px, 6vw, 100px);
+}
+
+.circular-grid__row--expanded {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  justify-items: center;
+  padding-inline: clamp(16px, 5vw, 120px);
+}
+
+.circular-grid__cell {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 520px) {
+  .circular-grid__scroll {
+    max-height: none;
+  }
+
+  .circular-grid__row {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding-inline: clamp(12px, 6vw, 24px);
+  }
+}
