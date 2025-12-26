@@ -1,4 +1,6 @@
-import callToAdventure from '../assets/story_beats/call-to-adventure.png'
+import callToAdventure from '../assets/story_beats/call-to-adventure_ink.jpg'
+// import callToAdventure from '../assets/story_beats/call-to-adventure.png'
+// import callToAdventure from '../assets/story_beats/call-to-adventure_ink.png'
 import descendIntoAbyss from '../assets/story_beats/descend-into-abyss.png'
 import facingTheDragon from '../assets/story_beats/facing-the-dragon.png'
 import maiden from '../assets/story_beats/maiden.png'

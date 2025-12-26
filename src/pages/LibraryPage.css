@@ -2,7 +2,15 @@
   --header-height: 88px;
   --spine-ratio: 0.2596;
   min-height: 100vh;
-  background: radial-gradient(circle at top, #faf7f4 0%, #ffffff 45%, #fbfaf8 100%);
+  background:
+    radial-gradient(circle at top, #faf7f4 0%, #ffffff 45%, #fbfaf8 100%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(225, 216, 207, 0.2),
+      rgba(225, 216, 207, 0.2) 2px,
+      transparent 2px,
+      transparent 6px
+    );
   color: #4b4742;
 }
 
@@ -85,25 +93,21 @@
 .page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 2.5rem 3rem;
+  padding: 3.5rem 2.5rem 3rem;
   min-height: calc(100vh - var(--header-height));
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .bookshelf {
   display: grid;
   grid-template-columns: repeat(
     5,
-    calc(var(--spine-height) * var(--spine-ratio))
+    minmax(170px, 1fr)
   );
-  grid-auto-rows: var(--spine-height);
+  grid-auto-rows: minmax(420px, 1fr);
   gap: 0;
-  --spine-height: min(
-    420px,
-    calc((min(1200px, 100vw - 5rem)) / (5 * var(--spine-ratio)))
-  );
-  width: fit-content;
+  width: 100%;
   margin: 0 auto;
   justify-content: center;
   align-content: start;
@@ -112,15 +116,23 @@
 .bookshelf__slot {
   position: relative;
   height: 100%;
-  width: calc(var(--spine-height) * var(--spine-ratio));
+  width: 100%;
+  padding: 3rem 1.75rem;
+}
+
+.bookshelf__slot:not(:nth-child(5n + 1)) {
+  border-left: 1px solid #ded6cb;
 }
 
 .bookshelf__slot--add {
   border: none;
   background: transparent;
-  padding: 0;
+  padding: 3rem 1.75rem;
   cursor: pointer;
-  width: calc(var(--spine-height) * var(--spine-ratio));
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bookshelf__slot--add:disabled {
@@ -128,53 +140,37 @@
   cursor: not-allowed;
 }
 
-.bookshelf__slot--add img {
-  height: 100%;
-  display: block;
-  width: auto;
+.bookshelf__add-plus {
+  font-size: 2.6rem;
+  color: #3d342a;
+  font-weight: 400;
 }
 
 .bookshelf__slot--book {
   border: none;
   background: transparent;
-  padding: 0;
+  padding: 3rem 1.75rem;
   cursor: pointer;
-  text-align: left;
-}
-
-.bookshelf__book {
-  flex: 0 0 auto;
-  width: auto;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-.bookshelf__label {
-  position: absolute;
-  inset: 0;
+  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  color: rgba(55, 47, 39, 0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
-  pointer-events: none;
-  transform: rotate(-90deg);
-  transform-origin: center;
+  align-items: center;
+  gap: 1.1rem;
 }
 
 .bookshelf__label-small {
-  font-size: 0.55rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  color: #7a6f64;
+  letter-spacing: 0.02em;
 }
 
 .bookshelf__label-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .bookshelf__prompt {
@@ -260,14 +256,16 @@
   }
 
   .bookshelf {
-    --spine-height: min(
-      360px,
-      calc((min(900px, 100vw - 3rem)) / (4 * var(--spine-ratio)))
-    );
-    grid-template-columns: repeat(
-      4,
-      calc(var(--spine-height) * var(--spine-ratio))
-    );
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    grid-auto-rows: minmax(360px, 1fr);
+  }
+
+  .bookshelf__slot {
+    border-left: none;
+  }
+
+  .bookshelf__slot:not(:nth-child(4n + 1)) {
+    border-left: 1px solid #ded6cb;
   }
 }
 
@@ -285,18 +283,16 @@
     font-size: 1rem;
   }
 
-  .bookshelf__book {
-    height: 100%;
+  .bookshelf {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    grid-auto-rows: minmax(320px, 1fr);
   }
 
-  .bookshelf {
-    --spine-height: min(
-      300px,
-      calc((min(600px, 100vw - 2rem)) / (3 * var(--spine-ratio)))
-    );
-    grid-template-columns: repeat(
-      3,
-      calc(var(--spine-height) * var(--spine-ratio))
-    );
+  .bookshelf__slot {
+    border-left: none;
+  }
+
+  .bookshelf__slot:not(:nth-child(2n + 1)) {
+    border-left: 1px solid #ded6cb;
   }
 }

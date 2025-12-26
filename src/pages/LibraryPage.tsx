@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import logo from '../assets/logo.jpg'
-import bookSpine from '../assets/book-spine.png'
-import addBookSpine from '../assets/add-book-spine.png'
 import defaults from '../defaults.json'
 import {
   createBookId,
@@ -119,7 +117,9 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
             disabled={availableVirtues.length === 0}
             aria-label="Add a new book"
           >
-            <img src={addBookSpine} alt="Add a new book" />
+            <span className="bookshelf__add-plus" aria-hidden="true">
+              +
+            </span>
           </button>
           {books.map((book) => (
             <button
@@ -129,15 +129,8 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               onClick={() => onOpenStoryBeats(book.id)}
               aria-label={`Open ${book.title}`}
             >
-              <img
-                src={bookSpine}
-                alt="Book spine"
-                className="bookshelf__book"
-              />
-              <div className="bookshelf__label" aria-hidden="true">
-                <span className="bookshelf__label-small">A story of</span>
-                <span className="bookshelf__label-title">{book.title}</span>
-              </div>
+              <span className="bookshelf__label-small">A story of</span>
+              <span className="bookshelf__label-title">{book.title}</span>
             </button>
           ))}
         </section>
