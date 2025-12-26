@@ -1,0 +1,48 @@
+{
+  "virtues": ["Courage", "Growth", "Awakening", "Rebirth", "Trials"],
+  "books": [
+    {
+      "id": "book-courage",
+      "title": "Courage",
+      "beats": [
+        { "id": "call-to-adventure", "note": "" },
+        { "id": "facing-the-dragon", "note": "" },
+        { "id": "treasure", "note": "" }
+      ]
+    },
+    {
+      "id": "book-growth",
+      "title": "Growth",
+      "beats": [
+        { "id": "strange-omen", "note": "" },
+        { "id": "wizard", "note": "" },
+        { "id": "maiden", "note": "" }
+      ]
+    },
+    {
+      "id": "book-awakening",
+      "title": "Awakening",
+      "beats": [
+        { "id": "descend-into-abyss", "note": "" },
+        { "id": "treasure", "note": "" }
+      ]
+    },
+    {
+      "id": "book-rebirth",
+      "title": "Rebirth",
+      "beats": [
+        { "id": "maiden", "note": "" },
+        { "id": "facing-the-dragon", "note": "" }
+      ]
+    },
+    {
+      "id": "book-trials",
+      "title": "Trials",
+      "beats": [
+        { "id": "call-to-adventure", "note": "" },
+        { "id": "strange-omen", "note": "" },
+        { "id": "descend-into-abyss", "note": "" }
+      ]
+    }
+  ]
+}
