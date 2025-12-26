@@ -94,7 +94,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     setIsPromptOpen(false)
   }
 
-  const handleAddBeat = () => {
+  const handleSaveBeat = () => {
     if (!book || !selectedBeat) {
       setIsPromptOpen(false)
       return
@@ -227,7 +227,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
               <button type="button" onClick={closePrompt}>
                 Cancel
               </button>
-              <button type="button" onClick={handleAddBeat}>
+              <button type="button" onClick={handleSaveBeat}>
                 Save
               </button>
             </div>
