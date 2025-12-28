@@ -156,21 +156,43 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1.1rem;
+  gap: 0;
 }
 
 .bookshelf__label-small {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #7a6f64;
+  /* color: #7a6f64; */
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 .bookshelf__label-title {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  /* font-weight: 0; */
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  text-align: left;
+  line-height: 1.05;
+}
+
+.bookshelf__text-block {
+  transform: none;
+  transform-origin: initial;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  color: #787878;
+}
+
+.bookshelf__glyph {
+  width: 35px;
+  height: auto;
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .bookshelf__prompt {

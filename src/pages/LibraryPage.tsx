@@ -1,5 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import logo from '../assets/logo.jpg'
+import birdGlyph from '../assets/glyphs/archive/bird.jpg'
+import moonGlyph from '../assets/glyphs/archive/moon.jpg'
+import sproutGlyph from '../assets/glyphs/archive/sprout.jpg'
+import sunGlyph from '../assets/glyphs/archive/sun.jpg'
 import defaults from '../defaults.json'
 import {
   createBookId,
@@ -8,6 +12,14 @@ import {
 } from '../data/books'
 import type { Book } from '../data/books'
 import './LibraryPage.css'
+
+const virtueToGlyph: Record<string, string> = {
+  Courage: sunGlyph,
+  Growth: sproutGlyph,
+  Awakening: moonGlyph,
+  Rebirth: birdGlyph,
+  Trials: sunGlyph,
+}
 
 type LibraryPageProps = {
   onOpenStoryBeats: (bookId: string) => void
@@ -52,17 +64,8 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
     writeStoredBooks(next)
   }
 
-  const availableVirtues = useMemo(() => {
-    return virtues.filter((virtue) => !books.some((book) => book.title === virtue))
-  }, [books])
-
   const openPrompt = () => {
-    if (availableVirtues.length === 0) {
-      return
-    }
-
-    const defaultValue = availableVirtues[0] ?? virtues[0]
-    setSelectedVirtue(defaultValue)
+    setSelectedVirtue(virtues[0] ?? '')
     setIsPromptOpen(true)
   }
 
@@ -114,7 +117,6 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
             className="bookshelf__slot bookshelf__slot--add"
             type="button"
             onClick={openPrompt}
-            disabled={availableVirtues.length === 0}
             aria-label="Add a new book"
           >
             <span className="bookshelf__add-plus" aria-hidden="true">
@@ -129,8 +131,15 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               onClick={() => onOpenStoryBeats(book.id)}
               aria-label={`Open ${book.title}`}
             >
-              <span className="bookshelf__label-small">A story of</span>
-              <span className="bookshelf__label-title">{book.title}</span>
+              <img
+                className="bookshelf__glyph"
+                src={virtueToGlyph[book.title]}
+                alt={`${book.title} glyph`}
+              />
+              <div className="bookshelf__text-block">
+                <span className="bookshelf__label-small">A story of</span>
+                <span className="bookshelf__label-title">{book.title}</span>
+              </div>
             </button>
           ))}
         </section>
@@ -144,15 +153,11 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
                   value={selectedVirtue}
                   onChange={(event) => setSelectedVirtue(event.target.value)}
                 >
-                  {availableVirtues.length === 0 ? (
-                    <option value={selectedVirtue}>{selectedVirtue}</option>
-                  ) : (
-                    availableVirtues.map((virtue) => (
-                      <option value={virtue} key={virtue}>
-                        {virtue}
-                      </option>
-                    ))
-                  )}
+                  {virtues.map((virtue) => (
+                    <option value={virtue} key={virtue}>
+                      {virtue}
+                    </option>
+                  ))}
                 </select>
               </label>
               <div className="bookshelf__prompt-actions">

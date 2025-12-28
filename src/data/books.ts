@@ -9,6 +9,8 @@ export type Book = {
   beats: StoryBeatEntry[]
 }
 
+//TODO: do we need most of this file?
+
 const storageKey = 'story-within:books'
 
 const isBeatEntry = (value: unknown): value is StoryBeatEntry => {

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { readStoredBooks, writeStoredBooks } from '../data/books'
 import type { Book, StoryBeatEntry } from '../data/books'
 import { storyBeatMap, storyBeats } from '../data/storyBeats'
+import CarouselIndicator from '../components/CarouselIndicator'
 import './StoryBeatsCarousel.css'
 
 type StoryBeatsCarouselProps = {
@@ -125,6 +126,8 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     setIsPromptOpen(false)
   }
 
+  const currentSlide = slides[index] ?? null
+
   return (
     <div className="story-carousel">
       <button
@@ -179,15 +182,20 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
             {slides.map((slide) => (
               <div className="story-carousel__slide" key={slide.id}>
                 <img src={slide.src} alt={slide.title} />
-                <div className="story-carousel__caption">
-                  <h3>{slide.title}</h3>
-                  <p>{slide.note || ''}</p>
-                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      {currentSlide && (
+        <div className="story-carousel__meta">
+          <div className="story-carousel__caption">
+            <h3>{currentSlide.title}</h3>
+            <p>{currentSlide.note || ''}</p>
+          </div>
+          <CarouselIndicator count={slides.length} index={index} />
+        </div>
+      )}
       <button
         className="story-carousel__arrow story-carousel__arrow--right"
         type="button"
