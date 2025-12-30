@@ -35,7 +35,12 @@ const { virtues, books: defaultBooks } = defaults as DefaultsConfig
 function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
   const [books, setBooks] = useState<Book[]>([])
   const [isPromptOpen, setIsPromptOpen] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
   const [selectedVirtue, setSelectedVirtue] = useState(virtues[0] ?? '')
+  const volumeCounts = books.reduce<Record<string, number>>((acc, book) => {
+    acc[book.title] = (acc[book.title] ?? 0) + 1
+    return acc
+  }, {})
 
   useEffect(() => {
     const stored = readStoredBooks()
@@ -81,6 +86,24 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
 
     addBook(selectedVirtue)
     setIsPromptOpen(false)
+    setIsEditMode(false)
+  }
+
+  const toggleEditMode = () => {
+    setIsEditMode((current) => !current)
+  }
+
+  const cancelEditMode = () => {
+    setIsEditMode(false)
+  }
+
+  const handleDeleteBook = (bookId: string) => {
+    const next = books.filter((book) => book.id !== bookId)
+    setBooks(next)
+    writeStoredBooks(next)
+    if (next.length === 0) {
+      setIsEditMode(false)
+    }
   }
 
   return (
@@ -113,16 +136,38 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
       </header>
       <main className="page">
         <section className="bookshelf" aria-label="Bookshelf">
-          <button
-            className="bookshelf__slot bookshelf__slot--add"
-            type="button"
-            onClick={openPrompt}
-            aria-label="Add a new book"
-          >
-            <span className="bookshelf__add-plus" aria-hidden="true">
-              +
-            </span>
-          </button>
+          <div className="bookshelf__slot bookshelf__slot--add">
+            {!isEditMode && (
+              <button
+                className="bookshelf__edit-toggle"
+                type="button"
+                onClick={toggleEditMode}
+                aria-label="Enter edit mode"
+              >
+                ◎
+              </button>
+            )}
+            {isEditMode && (
+              <>
+                <button
+                  className="bookshelf__add-button"
+                  type="button"
+                  onClick={openPrompt}
+                  aria-label="Add a new book"
+                >
+                  +
+                </button>
+                <button
+                  className="bookshelf__cancel-edit"
+                  type="button"
+                  onClick={cancelEditMode}
+                  aria-label="Exit edit mode"
+                >
+                  ×
+                </button>
+              </>
+            )}
+          </div>
           {books.map((book) => (
             <button
               className="bookshelf__slot bookshelf__slot--book"
@@ -131,15 +176,33 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               onClick={() => onOpenStoryBeats(book.id)}
               aria-label={`Open ${book.title}`}
             >
+              {isEditMode && (
+                <button
+                  className="bookshelf__delete"
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    handleDeleteBook(book.id)
+                  }}
+                  aria-label={`Delete ${book.title}`}
+                >
+                  ×
+                </button>
+              )}
+              <div className="bookshelf__text-block">
+                <span className="bookshelf__label-small">A story of</span>
+                <span className="bookshelf__label-title story-title">
+                  {book.title}
+                </span>
+              </div>
               <img
                 className="bookshelf__glyph"
                 src={virtueToGlyph[book.title]}
                 alt={`${book.title} glyph`}
               />
-              <div className="bookshelf__text-block">
-                <span className="bookshelf__label-small">A story of</span>
-                <span className="bookshelf__label-title">{book.title}</span>
-              </div>
+              <span className="bookshelf__volume">
+                Vol {volumeCounts[book.title]}
+              </span>
             </button>
           ))}
         </section>

@@ -1,6 +1,7 @@
 .app {
   --header-height: 88px;
   --spine-ratio: 0.2596;
+  --edit-icon-size: 2.6rem;
   min-height: 100vh;
   background:
     radial-gradient(circle at top, #faf7f4 0%, #ffffff 45%, #fbfaf8 100%),
@@ -106,7 +107,7 @@
     minmax(170px, 1fr)
   );
   grid-auto-rows: minmax(420px, 1fr);
-  gap: 0;
+  gap: 5rem 0;
   width: 100%;
   margin: 0 auto;
   justify-content: center;
@@ -133,6 +134,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .bookshelf__slot--add:disabled {
@@ -140,10 +142,30 @@
   cursor: not-allowed;
 }
 
-.bookshelf__add-plus {
-  font-size: 2.6rem;
-  color: #787878; 
+.bookshelf__edit-toggle,
+.bookshelf__add-button,
+.bookshelf__cancel-edit {
+  font-size: var(--edit-icon-size);
+  color: var(--ink-muted);
   font-weight: 400;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: #000000;
+  }
+}
+
+.bookshelf__edit-toggle,
+.bookshelf__add-button {
+  line-height: 1;
+}
+
+.bookshelf__cancel-edit {
+  position: absolute;
+  bottom: 8rem;
+  line-height: 1;
 }
 
 .bookshelf__slot--book {
@@ -157,6 +179,7 @@
   justify-content: center;
   align-items: center;
   gap: 0;
+  position: relative;
 }
 
 .bookshelf__label-small {
@@ -177,22 +200,47 @@
 }
 
 .bookshelf__text-block {
-  transform: none;
-  transform-origin: initial;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  color: #787878;
+  gap: 0.2rem;
+  color: var(--ink-muted);
 }
 
 .bookshelf__glyph {
-  width: 35px;
+  width: 32px;
   height: auto;
   position: absolute;
-  top: 130px;
   left: 50%;
+  bottom: 3.25rem;
   transform: translateX(-50%);
+  filter: url(#tint-mask-blue);
+}
+
+.bookshelf__volume {
+  position: absolute;
+  left: 50%;
+  bottom: 2.1rem;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.bookshelf__delete {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: var(--ink-muted);
+  cursor: pointer;
 }
 
 .bookshelf__prompt {

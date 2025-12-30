@@ -3,6 +3,7 @@ import { readStoredBooks, writeStoredBooks } from '../data/books'
 import type { Book, StoryBeatEntry } from '../data/books'
 import { storyBeatMap, storyBeats } from '../data/storyBeats'
 import CarouselIndicator from '../components/CarouselIndicator'
+import TintMaskFilter from '../components/TintMaskFilter'
 import './StoryBeatsCarousel.css'
 
 type StoryBeatsCarouselProps = {
@@ -126,10 +127,30 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     setIsPromptOpen(false)
   }
 
+  const handleDeleteBeat = () => {
+    if (!book || editIndex === null) {
+      setIsPromptOpen(false)
+      return
+    }
+
+    const updated: Book = {
+      ...book,
+      beats: book.beats.filter((_, idx) => idx !== editIndex),
+    }
+    const stored = readStoredBooks()
+    const next = stored.map((item) =>
+      item.id === book.id ? updated : item,
+    )
+    writeStoredBooks(next)
+    setBook(updated)
+    setIsPromptOpen(false)
+  }
+
   const currentSlide = slides[index] ?? null
 
   return (
     <div className="story-carousel">
+      <TintMaskFilter hexColor="#000000ff" />
       <button
         className="story-carousel__close"
         type="button"
@@ -190,7 +211,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       {currentSlide && (
         <div className="story-carousel__meta">
           <div className="story-carousel__caption">
-            <h3>{currentSlide.title}</h3>
+            <h3 className="story-title">{currentSlide.title}</h3>
             <p>{currentSlide.note || ''}</p>
           </div>
           <CarouselIndicator count={slides.length} index={index} />
@@ -232,6 +253,15 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
               />
             </label>
             <div className="story-carousel__prompt-actions">
+              {editIndex !== null && (
+                <button
+                  type="button"
+                  className="story-carousel__prompt-delete"
+                  onClick={handleDeleteBeat}
+                >
+                  Delete
+                </button>
+              )}
               <button type="button" onClick={closePrompt}>
                 Cancel
               </button>

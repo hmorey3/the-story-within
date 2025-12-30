@@ -38,6 +38,14 @@
   width: auto;
   height: auto;
   object-fit: contain;
+  filter: url(#tint-mask);
+}
+
+.story-carousel__filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .story-carousel__indicator {
@@ -66,26 +74,22 @@
 .story-carousel__caption {
   text-align: center;
   max-width: 460px;
-  color: #3d342a;
 }
 
 .story-carousel__meta {
   display: grid;
   justify-items: center;
-  margin-top: 1rem;
   gap: 0.35rem;
+  color: var(--ink-muted)
 }
 
 .story-carousel__caption h3 {
   margin: 0 0 0.4rem;
-  font-size: 1.4rem;
-  font-weight: 600;
 }
 
 .story-carousel__caption p {
   margin: 0;
   font-size: 0.95rem;
-  color: #6f6256;
   min-height: 1.5rem;
 }
 
@@ -249,18 +253,24 @@
 }
 
 .story-carousel__prompt-actions button {
-  border: 1px solid #e1d6c9;
   padding: 0.5rem 1.2rem;
   border-radius: 999px;
   background: #ffffff;
   cursor: pointer;
   font-size: 0.95rem;
+  border: none;
+  box-shadow: none;
 }
 
 .story-carousel__prompt-actions button:last-child {
   background: #3d342a;
   color: #ffffff;
   border-color: transparent;
+}
+
+
+.story-carousel__prompt-delete {
+  color: #ac3800;
 }
 
 @media (max-width: 600px) {
