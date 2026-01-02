@@ -38,7 +38,7 @@
   width: auto;
   height: auto;
   object-fit: contain;
-  filter: url(#tint-mask);
+  /* filter: url(#tint-mask); */
 }
 
 .story-carousel__filters {

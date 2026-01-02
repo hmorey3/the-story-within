@@ -1,11 +1,9 @@
 import callToAdventure from '../assets/story_beats/call-to-adventure_ink.jpg'
-// import callToAdventure from '../assets/story_beats/call-to-adventure.png'
-// import callToAdventure from '../assets/story_beats/call-to-adventure_ink.png'
-import descendIntoAbyss from '../assets/story_beats/descend-into-abyss.png'
-import facingTheDragon from '../assets/story_beats/facing-the-dragon.png'
+import descendIntoAbyss from '../assets/story_beats/descend-into-abyss_ink.png'
+import facingTheDragon from '../assets/story_beats/facing-the-dragon_ink.png'
 import maiden from '../assets/story_beats/maiden.png'
-import strangeOmen from '../assets/story_beats/strange-omen.png'
-import treasure from '../assets/story_beats/treasure2.png'
+import strangeOmen from '../assets/story_beats/strange-omen_ink.jpg'
+import treasure from '../assets/story_beats/treasure2_ink.png'
 import wizard from '../assets/story_beats/wizard.png'
 
 export type StoryBeat = {

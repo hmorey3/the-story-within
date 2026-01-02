@@ -124,6 +124,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     )
     writeStoredBooks(next)
     setBook(updated)
+    setIndex(updatedBeats.length - 1)
     setIsPromptOpen(false)
   }
 

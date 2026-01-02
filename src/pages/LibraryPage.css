@@ -151,10 +151,15 @@
   background: transparent;
   border: none;
   cursor: pointer;
+}
 
-  &:hover {
-    color: #000000;
-  }
+.bookshelf :is(
+  .bookshelf__edit-toggle,
+  .bookshelf__add-button,
+  .bookshelf__cancel-edit,
+  .bookshelf__delete
+):hover {
+  color: var(--ink-hover);
 }
 
 .bookshelf__edit-toggle,
@@ -230,6 +235,15 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-muted);
+}
+
+.bookshelf__slot--book:hover .bookshelf__text-block,
+.bookshelf__slot--book:hover .bookshelf__volume {
+  color: var(--ink-hover);
+}
+
+.bookshelf__slot--book:hover .bookshelf__glyph {
+  filter: none;
 }
 
 .bookshelf__delete {
