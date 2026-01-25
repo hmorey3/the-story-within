@@ -100,7 +100,8 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
                       return
                     }
 
-                    const nextValue = suggestion.label.trim()
+                    // Strip trailing ellipsis/dots so user can type immediately
+                    const nextValue = suggestion.label.trim().replace(/\.{2,}$|…$/g, '')
                     setInputValue(nextValue ? `${nextValue} ` : '')
                     inputRef.current?.focus()
                   }}
