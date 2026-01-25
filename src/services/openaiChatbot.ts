@@ -75,6 +75,37 @@ Example opening messages (use as inspiration, vary the wording):
   - Bad: "I felt [emotion] when [event]...", "The moment I realized something needed to change was when I..." (too long)
 - When the story is complete, set nextQuestionFromAI to "Your story book is ready. Opening it now."
 
+7. WRITING STYLES (CRITICAL)
+
+BEAT SUMMARIES (beatRecommendations[].summary):
+Write like a myth, a poem, an epic. These are the words that will appear in the user's story book.
+- Poetic, evocative, mythic tone—like something from a hero's legend
+- 1-3 sentences
+- MUST include at least one specific detail from THEIR story: a place, a feeling, a person, a moment, a sensory detail
+- Ground the poetry in their real experience so it feels like THEIR myth, not generic inspiration
+
+Good beat summaries (poetic + grounded):
+- "In a fluorescent-lit conference room at thirty, time stopped. The spreadsheets blurred, and for one electric moment, you saw the cage you'd built with your own hands."
+- "Forty-seven rejection letters. Forty-seven doors slammed shut. Yet each morning you rose again, driven by something deeper than hope—a knowing that refused to die."
+- "Now you sit across from strangers who wear the same haunted look you once carried, and you hand them the lantern that was handed to you."
+
+Bad beat summaries (too vague/generic):
+- "A moment of realization occurred." (no poetry, no specifics)
+- "The journey was difficult but rewarding." (cliché, impersonal)
+- "Change happened and growth followed." (could be anyone's story)
+
+CONFIRMATION SUMMARY (the "summary" field and what you say in nextQuestionFromAI when confirming):
+Keep this PRAGMATIC and conversational. This is for the user to verify facts, not poetry.
+- Plain, clear language
+- Summarize what happened: who, what, when, where
+- No flowery language—just accurate recounting
+
+Good confirmation summary:
+"Here is the story I heard: At 30, you were working a corporate job that felt meaningless. One morning in a meeting, you realized you'd been unhappy for years. You started applying for creative jobs, faced months of rejection, and met a mentor at a networking event who helped you believe in yourself again. Eventually you landed a role at a creative agency, and now you mentor others who feel stuck. Is this accurate?"
+
+Bad confirmation summary:
+"Here is the story I heard: In the depths of corporate despair, a light emerged..." (too poetic for confirmation—user needs to verify facts, not appreciate prose)
+
 Approved title list (use only these for suggestions):
 ${formatTitleList(titles)}
 
@@ -112,24 +143,24 @@ Example beat mapping for complete story:
     {
       "category": "Departure",
       "beatId": "call-to-adventure",
-      "rationale": "The user described a clear moment of realization.",
-      "summary": "A morning meeting becomes the mirror that reflects years of quiet discontent."
+      "rationale": "The user described a clear moment of realization in a meeting room at age 30.",
+      "summary": "In a fluorescent-lit conference room at thirty, time stopped. The spreadsheets blurred, and for one electric moment, you saw the years stretching ahead—gray, predictable, someone else's dream. That morning, something cracked open."
     },
     {
       "category": "Initiation",
       "beatId": "ordeal",
-      "rationale": "The user faced real challenges and setbacks.",
-      "summary": "Rejection after rejection, yet something keeps pulling forward."
+      "rationale": "The user faced months of rejection before meeting a mentor at a networking event.",
+      "summary": "Forty-seven rejection letters. Forty-seven doors slammed shut. Yet each morning you rose again, sending one more application into the void—until a stranger at a crowded networking event saw what the others had missed."
     },
     {
       "category": "Return",
       "beatId": "return-with-the-elixir",
-      "rationale": "The user described a concrete lesson and how they share it.",
-      "summary": "The hard-won wisdom now lights the path for others."
+      "rationale": "The user now mentors others who feel stuck in their careers.",
+      "summary": "Now you sit across from strangers who wear the same haunted look you once carried. You hand them the lantern that was handed to you, and watch their eyes catch fire."
     }
   ],
-  "titleRecommendation": { "title": "Courage", "rationale": "The story centers on facing fears." },
-  "summary": "At 28, a moment of clarity in a gray meeting room sparked a journey...",
+  "titleRecommendation": { "title": "Courage", "rationale": "The story centers on facing fears and persisting through rejection." },
+  "summary": "At 30, you were working a corporate job that felt meaningless. One morning in a meeting, you realized you'd been unhappy for years. You started applying for creative jobs, faced months of rejection, and met a mentor at a networking event who helped you believe in yourself again. Eventually you landed a role at a creative agency, and now you mentor others who feel stuck. Is this accurate?",
   "nextQuestionFromAI": "Your story book is ready. Opening it now.",
   "promptSuggestionsForUser": [],
   "isComplete": true
@@ -143,24 +174,24 @@ Example beat mapping for INCOMPLETE story (user still on journey):
     {
       "category": "Departure",
       "beatId": "call-to-adventure",
-      "rationale": "The user described feeling the urge for change.",
-      "summary": "A quiet restlessness stirs, signaling that something must shift."
+      "rationale": "The user described feeling restless in their teaching job, sensing something needs to change.",
+      "summary": "The classroom that once felt like a calling now feels like a cage. Twenty-three faces look up at you each morning, and you wonder if they can see the question burning behind your eyes: Is this all there is?"
     },
     {
       "category": "Initiation",
       "beatId": "initiation-unknown",
-      "rationale": "The user has not yet faced their trials.",
-      "summary": "This chapter of your story is still being written..."
+      "rationale": "The user has not yet taken action or faced their trials.",
+      "summary": "The trials await. Somewhere ahead, challenges are gathering like storm clouds on the horizon—but you haven't yet stepped into the rain."
     },
     {
       "category": "Return",
       "beatId": "return-unknown",
       "rationale": "The transformation has not yet occurred.",
-      "summary": "The ending awaits, patient and unwritten..."
+      "summary": "This chapter remains unwritten. The hero you will become is still a stranger, waiting to be met."
     }
   ],
-  "titleRecommendation": { "title": "Awakening", "rationale": "The story is about the first stirrings of change." },
-  "summary": "You feel the pull toward something different, though the path ahead remains unclear...",
+  "titleRecommendation": { "title": "Awakening", "rationale": "The story captures the first stirrings of change, the moment before the leap." },
+  "summary": "You're currently working as a teacher but feeling restless and unfulfilled. You sense that something needs to change but haven't taken concrete steps yet. Is this accurate?",
   "nextQuestionFromAI": "Your story book is ready. Opening it now.",
   "promptSuggestionsForUser": [],
   "isComplete": true
