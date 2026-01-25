@@ -1,16 +1,10 @@
-import { useEffect, useMemo, useReducer, useState } from 'react'
-import { storyBeatCategories } from '../data/beatCategories'
+import { useEffect, useReducer, useState } from 'react'
 import { storyBeats } from '../data/storyBeats'
 import { titleOptions } from '../data/storyCatalog'
+import { storyBeatCategories } from '../data/beatCategories'
 import { createBookFromResponse } from '../services/chatbotBooks'
 import { requestOpenAiChatbotTurn } from '../services/openaiChatbot'
-import type {
-  BeatRecommendation,
-  ChatbotApiResponse,
-  ConversationState,
-  PromptSuggestion,
-  TitleRecommendation,
-} from '../types/chatbot'
+import type { ChatbotApiResponse, PromptSuggestion } from '../types/chatbot'
 
 // Types
 type ChatMessage = {
@@ -21,9 +15,6 @@ type ChatMessage = {
 
 type SessionState = {
   messages: ChatMessage[]
-  conversation: ConversationState
-  beatRecommendations: BeatRecommendation[]
-  titleRecommendation: TitleRecommendation | null
   promptSuggestions: PromptSuggestion[]
   isLoading: boolean
 }
@@ -49,16 +40,8 @@ const createUserMessage = (content: string): ChatMessage => ({
   content,
 })
 
-const initialConversation: ConversationState = {
-  categoryAnswers: {},
-  summary: '',
-}
-
 const initialState: SessionState = {
   messages: [],
-  conversation: initialConversation,
-  beatRecommendations: [],
-  titleRecommendation: null,
   promptSuggestions: [],
   isLoading: false,
 }
@@ -72,26 +55,12 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
     case 'SET_LOADING':
       return { ...state, isLoading: action.isLoading }
 
-    case 'HANDLE_RESPONSE': {
-      const { response } = action
-      const categoryAnswers = { ...state.conversation.categoryAnswers }
-      response.fulfilledCategories.forEach((cat) => {
-        categoryAnswers[cat] = categoryAnswers[cat] ?? 'filled'
-      })
-
+    case 'HANDLE_RESPONSE':
       return {
         ...state,
-        conversation: {
-          ...state.conversation,
-          categoryAnswers,
-          summary: response.summary ?? state.conversation.summary,
-        },
-        beatRecommendations: response.beatRecommendations,
-        titleRecommendation: response.titleRecommendation,
-        promptSuggestions: response.promptSuggestionsForUser ?? [],
+        promptSuggestions: action.response.promptSuggestionsForUser ?? [],
         isLoading: false,
       }
-    }
 
     case 'RESET':
       return initialState
@@ -138,11 +107,6 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
   const [inputValue, setInputValue] = useState('')
   const [state, dispatch] = useReducer(sessionReducer, initialState)
 
-  const progress = useMemo(
-    () => storyBeatCategories.filter((cat) => state.conversation.categoryAnswers[cat]),
-    [state.conversation.categoryAnswers]
-  )
-
   // Initial message on open
   useEffect(() => {
     if (!isOpen || state.messages.length > 0) return
@@ -188,7 +152,7 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
     dispatch({ type: 'HANDLE_RESPONSE', response })
     dispatch({ type: 'ADD_MESSAGE', message: createAssistantMessage(response.nextQuestionFromAI) })
 
-    // AI signals completion - create the book
+    // AI signals completion - create the book with final beat recommendations
     if (response.isComplete) {
       const title = response.titleRecommendation?.title ?? 'Untitled'
       const newBook = createBookFromResponse({
@@ -206,8 +170,6 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
     messages: state.messages,
     pendingResponse: state.isLoading,
     promptSuggestionsForUser: state.promptSuggestions,
-    titleRecommendation: state.titleRecommendation,
-    progress,
     submitMessage,
   }
 }

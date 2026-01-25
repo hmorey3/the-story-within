@@ -28,8 +28,3 @@ export type ChatbotApiResponse = {
   promptSuggestionsForUser: PromptSuggestion[]
   isComplete: boolean
 }
-
-export type ConversationState = {
-  categoryAnswers: Partial<Record<StoryBeatCategory, string>>
-  summary: string
-}

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { storyBeatCategories } from '../data/beatCategories'
 import { formatPromptLabel } from '../services/chatbotPrompts'
 import { useChatbotSession } from '../hooks/useChatbotSession'
 import './ChatbotWidget.css'
@@ -19,7 +18,6 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
     messages,
     pendingResponse,
     promptSuggestionsForUser,
-    progress,
     submitMessage,
   } = useChatbotSession({
     isOpen,
@@ -56,12 +54,7 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
       {isOpen && (
         <div className="chatbot__panel" role="dialog" aria-label="Story chatbot">
           <header className="chatbot__header">
-            <div>
-              <p className="chatbot__title">Story Guide</p>
-              <p className="chatbot__subtitle">
-                {progress.length}/{storyBeatCategories.length} beats gathered
-              </p>
-            </div>
+            <p className="chatbot__title">Story Guide</p>
             <button
               className="chatbot__close"
               type="button"
