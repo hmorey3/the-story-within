@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import LibraryPage from './pages/LibraryPage'
 import StoryBeatsCarousel from './pages/StoryBeatsCarousel'
+import ChatbotWidget from './components/ChatbotWidget'
 
 const getStoryBeatId = (path: string) => {
   if (!path.startsWith('/story-beats/')) {
@@ -35,19 +36,33 @@ function AppRouter() {
   const storyBeatId = getStoryBeatId(pathname)
   if (storyBeatId) {
     return (
-      <StoryBeatsCarousel
-        bookId={storyBeatId}
-        onClose={() => navigate('/')}
-      />
+      <>
+        <StoryBeatsCarousel
+          bookId={storyBeatId}
+          onClose={() => navigate('/')}
+        />
+        <ChatbotWidget
+          onOpenStoryBeats={(bookId) =>
+            navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+          }
+        />
+      </>
     )
   }
 
   return (
-    <LibraryPage
-      onOpenStoryBeats={(bookId) =>
-        navigate(`/story-beats/${encodeURIComponent(bookId)}`)
-      }
-    />
+    <>
+      <LibraryPage
+        onOpenStoryBeats={(bookId) =>
+          navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+        }
+      />
+      <ChatbotWidget
+        onOpenStoryBeats={(bookId) =>
+          navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+        }
+      />
+    </>
   )
 }
 

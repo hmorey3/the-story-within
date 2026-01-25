@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { readStoredBooks, writeStoredBooks } from '../data/books'
 import type { Book, StoryBeatEntry } from '../data/books'
+import type { BeatId } from '../data/storyCatalog'
 import { storyBeatMap, storyBeats } from '../data/storyBeats'
 import CarouselIndicator from '../components/CarouselIndicator'
 import TintMaskFilter from '../components/TintMaskFilter'
+import Modal from '../components/Modal'
 import './StoryBeatsCarousel.css'
 
 type StoryBeatsCarouselProps = {
@@ -15,7 +17,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
   const [book, setBook] = useState<Book | null>(null)
   const [index, setIndex] = useState(0)
   const [isPromptOpen, setIsPromptOpen] = useState(false)
-  const [selectedBeat, setSelectedBeat] = useState(storyBeats[0]?.id ?? '')
+  const [selectedBeat, setSelectedBeat] = useState<string>(storyBeats[0]?.id ?? '')
   const [note, setNote] = useState('')
   const [editIndex, setEditIndex] = useState<number | null>(null)
 
@@ -27,73 +29,47 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
   }, [bookId])
 
   const slides = useMemo(() => {
-    if (!book) {
-      return []
-    }
+    if (!book) return []
 
     return book.beats
       .map((entry) => {
         const beat = storyBeatMap.get(entry.id)
-        if (!beat) {
-          return null
-        }
-
-        return {
-          ...beat,
-          note: entry.note,
-        }
+        if (!beat) return null
+        return { ...beat, note: entry.note }
       })
       .filter((beat): beat is NonNullable<typeof beat> => Boolean(beat))
   }, [book])
 
   useEffect(() => {
-    if (index >= slides.length) {
-      setIndex(0)
-    }
+    if (index >= slides.length) setIndex(0)
   }, [index, slides.length])
 
-  const goNext = () => {
-    setIndex((current) => (current + 1) % Math.max(slides.length, 1))
-  }
+  const goNext = () => setIndex((i) => (i + 1) % Math.max(slides.length, 1))
+  const goPrev = () => setIndex((i) => (i - 1 + Math.max(slides.length, 1)) % Math.max(slides.length, 1))
 
-  const goPrev = () => {
-    setIndex(
-      (current) =>
-        (current - 1 + Math.max(slides.length, 1)) %
-        Math.max(slides.length, 1),
-    )
-  }
-
-  const openPrompt = () => {
-    if (!book) {
-      return
-    }
-
-    const next = storyBeats[0]?.id ?? ''
-    setSelectedBeat(next)
+  const openAddPrompt = () => {
+    if (!book) return
+    setSelectedBeat(storyBeats[0]?.id ?? '')
     setNote('')
     setEditIndex(null)
     setIsPromptOpen(true)
   }
 
   const openEditPrompt = (beatIndex: number) => {
-    if (!book) {
-      return
-    }
-
+    if (!book) return
     const entry = book.beats[beatIndex]
-    if (!entry) {
-      return
-    }
-
+    if (!entry) return
     setSelectedBeat(entry.id)
     setNote(entry.note)
     setEditIndex(beatIndex)
     setIsPromptOpen(true)
   }
 
-  const closePrompt = () => {
-    setIsPromptOpen(false)
+  const saveBook = (updated: Book) => {
+    const stored = readStoredBooks()
+    const next = stored.map((item) => (item.id === book?.id ? updated : item))
+    writeStoredBooks(next)
+    setBook(updated)
   }
 
   const handleSaveBeat = () => {
@@ -102,28 +78,16 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       return
     }
 
-    const entry: StoryBeatEntry = {
-      id: selectedBeat,
-      note: note.trim(),
-    }
-
+    const entry: StoryBeatEntry = { id: selectedBeat as BeatId, note: note.trim() }
     const updatedBeats = [...book.beats]
+
     if (editIndex === null) {
       updatedBeats.push(entry)
     } else {
       updatedBeats[editIndex] = entry
     }
 
-    const updated: Book = {
-      ...book,
-      beats: updatedBeats,
-    }
-    const stored = readStoredBooks()
-    const next = stored.map((item) =>
-      item.id === book.id ? updated : item,
-    )
-    writeStoredBooks(next)
-    setBook(updated)
+    saveBook({ ...book, beats: updatedBeats })
     setIndex(updatedBeats.length - 1)
     setIsPromptOpen(false)
   }
@@ -134,16 +98,10 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       return
     }
 
-    const updated: Book = {
+    saveBook({
       ...book,
       beats: book.beats.filter((_, idx) => idx !== editIndex),
-    }
-    const stored = readStoredBooks()
-    const next = stored.map((item) =>
-      item.id === book.id ? updated : item,
-    )
-    writeStoredBooks(next)
-    setBook(updated)
+    })
     setIsPromptOpen(false)
   }
 
@@ -152,6 +110,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
   return (
     <div className="story-carousel">
       <TintMaskFilter hexColor="#000000ff" />
+
       <button
         className="story-carousel__close"
         type="button"
@@ -160,15 +119,17 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       >
         ×
       </button>
+
       <button
         className="story-carousel__add"
         type="button"
-        onClick={openPrompt}
+        onClick={openAddPrompt}
         disabled={!book}
         aria-label="Add a story beat"
       >
         +
       </button>
+
       <button
         className="story-carousel__edit-top"
         type="button"
@@ -178,6 +139,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       >
         ✎
       </button>
+
       <button
         className="story-carousel__arrow story-carousel__arrow--left"
         type="button"
@@ -187,6 +149,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       >
         ‹
       </button>
+
       <div className="story-carousel__frame">
         {!book ? (
           <div className="story-carousel__empty">
@@ -209,6 +172,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
           </div>
         )}
       </div>
+
       {currentSlide && (
         <div className="story-carousel__meta">
           <div className="story-carousel__caption">
@@ -218,6 +182,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
           <CarouselIndicator count={slides.length} index={index} />
         </div>
       )}
+
       <button
         className="story-carousel__arrow story-carousel__arrow--right"
         type="button"
@@ -227,51 +192,53 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       >
         ›
       </button>
+
       {isPromptOpen && (
-        <div className="story-carousel__prompt" role="dialog" aria-modal="true">
-          <div className="story-carousel__prompt-card">
-            <h2>{editIndex === null ? 'Add a story beat' : 'Edit story beat'}</h2>
-            <label className="story-carousel__prompt-field">
-              Choose a beat
-              <select
-                value={selectedBeat}
-                onChange={(event) => setSelectedBeat(event.target.value)}
-              >
-                {storyBeats.map((beat) => (
-                  <option value={beat.id} key={beat.id}>
-                    {beat.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="story-carousel__prompt-field">
-              Description
-              <textarea
-                rows={3}
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Add a short note..."
-              />
-            </label>
-            <div className="story-carousel__prompt-actions">
+        <Modal
+          title={editIndex === null ? 'Add a story beat' : 'Edit story beat'}
+          actions={
+            <>
               {editIndex !== null && (
                 <button
                   type="button"
-                  className="story-carousel__prompt-delete"
+                  className="modal-delete-btn"
                   onClick={handleDeleteBeat}
                 >
                   Delete
                 </button>
               )}
-              <button type="button" onClick={closePrompt}>
+              <button type="button" onClick={() => setIsPromptOpen(false)}>
                 Cancel
               </button>
               <button type="button" onClick={handleSaveBeat}>
                 Save
               </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <label className="modal-field">
+            Choose a beat
+            <select
+              value={selectedBeat}
+              onChange={(e) => setSelectedBeat(e.target.value)}
+            >
+              {storyBeats.map((beat) => (
+                <option value={beat.id} key={beat.id}>
+                  {beat.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="modal-field">
+            Description
+            <textarea
+              rows={3}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a short note..."
+            />
+          </label>
+        </Modal>
       )}
     </div>
   )

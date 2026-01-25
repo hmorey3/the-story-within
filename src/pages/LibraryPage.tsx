@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import logo from '../assets/logo.jpg'
-import birdGlyph from '../assets/glyphs/archive/bird.jpg'
-import moonGlyph from '../assets/glyphs/archive/moon.jpg'
-import sproutGlyph from '../assets/glyphs/archive/sprout.jpg'
-import sunGlyph from '../assets/glyphs/archive/sun.jpg'
+import Header from '../components/Header'
+import Modal from '../components/Modal'
 import defaults from '../defaults.json'
+import { titleOptions, virtueGlyphs, type DefaultsConfig } from '../data/storyCatalog'
+import type { TitleOption } from '../data/storyCatalog'
 import {
   createBookId,
   readStoredBooks,
@@ -13,30 +12,18 @@ import {
 import type { Book } from '../data/books'
 import './LibraryPage.css'
 
-const virtueToGlyph: Record<string, string> = {
-  Courage: sunGlyph,
-  Growth: sproutGlyph,
-  Awakening: moonGlyph,
-  Rebirth: birdGlyph,
-  Trials: sunGlyph,
-}
-
 type LibraryPageProps = {
   onOpenStoryBeats: (bookId: string) => void
 }
 
-type DefaultsConfig = {
-  virtues: string[]
-  books: Book[]
-}
-
-const { virtues, books: defaultBooks } = defaults as DefaultsConfig
+const { books: defaultBooks } = defaults as DefaultsConfig
 
 function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
   const [books, setBooks] = useState<Book[]>([])
   const [isPromptOpen, setIsPromptOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
-  const [selectedVirtue, setSelectedVirtue] = useState(virtues[0] ?? '')
+  const [selectedVirtue, setSelectedVirtue] = useState<TitleOption>(titleOptions[0])
+
   const volumeCounts = books.reduce<Record<string, number>>((acc, book) => {
     acc[book.title] = (acc[book.title] ?? 0) + 1
     return acc
@@ -57,47 +44,17 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
   }, [])
 
   const addBook = (virtue: string) => {
-    const next: Book[] = [
-      {
-        id: createBookId(),
-        title: virtue,
-        beats: [],
-      },
-      ...books,
-    ]
+    const newBook: Book = {
+      id: createBookId(),
+      title: virtue,
+      beats: [],
+    }
+    const next = [newBook, ...books]
     setBooks(next)
     writeStoredBooks(next)
   }
 
-  const openPrompt = () => {
-    setSelectedVirtue(virtues[0] ?? '')
-    setIsPromptOpen(true)
-  }
-
-  const closePrompt = () => {
-    setIsPromptOpen(false)
-  }
-
-  const handleAdd = () => {
-    if (!selectedVirtue) {
-      setIsPromptOpen(false)
-      return
-    }
-
-    addBook(selectedVirtue)
-    setIsPromptOpen(false)
-    setIsEditMode(false)
-  }
-
-  const toggleEditMode = () => {
-    setIsEditMode((current) => !current)
-  }
-
-  const cancelEditMode = () => {
-    setIsEditMode(false)
-  }
-
-  const handleDeleteBook = (bookId: string) => {
+  const deleteBook = (bookId: string) => {
     const next = books.filter((book) => book.id !== bookId)
     setBooks(next)
     writeStoredBooks(next)
@@ -106,48 +63,37 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
     }
   }
 
+  const handleAdd = () => {
+    if (!selectedVirtue) {
+      setIsPromptOpen(false)
+      return
+    }
+    addBook(selectedVirtue)
+    setIsPromptOpen(false)
+    setIsEditMode(false)
+  }
+
+  const openPrompt = () => {
+    setSelectedVirtue(titleOptions[0])
+    setIsPromptOpen(true)
+  }
+
   return (
     <div className="app">
-      <header className="site-header">
-        <nav className="navbar">
-          <a className="navbar__brand" href="/" aria-label="The Story Within">
-            <img src={logo} alt="The Story Within logo" />
-          </a>
-          <div className="navbar__links">
-            <a className="navbar__link" href="/">
-              Home
-            </a>
-            <button
-              className="navbar__link navbar__link--dropdown"
-              type="button"
-              onClick={() => {
-                if (books[0]) {
-                  onOpenStoryBeats(books[0].id)
-                }
-              }}
-            >
-              Chapters
-              <span className="navbar__caret" aria-hidden="true">
-                ▾
-              </span>
-            </button>
-          </div>
-        </nav>
-      </header>
+      <Header />
       <main className="page">
         <section className="bookshelf" aria-label="Bookshelf">
           <div className="bookshelf__slot bookshelf__slot--add">
-            {!isEditMode && (
+            {!isEditMode ? (
               <button
                 className="bookshelf__edit-toggle"
                 type="button"
-                onClick={toggleEditMode}
+                onClick={() => setIsEditMode(true)}
                 aria-label="Enter edit mode"
               >
                 ◎
               </button>
-            )}
-            {isEditMode && (
+            ) : (
               <>
                 <button
                   className="bookshelf__add-button"
@@ -160,7 +106,7 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
                 <button
                   className="bookshelf__cancel-edit"
                   type="button"
-                  onClick={cancelEditMode}
+                  onClick={() => setIsEditMode(false)}
                   aria-label="Exit edit mode"
                 >
                   ×
@@ -168,71 +114,75 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               </>
             )}
           </div>
+
           {books.map((book) => (
-            <button
+            <div
               className="bookshelf__slot bookshelf__slot--book"
               key={book.id}
-              type="button"
-              onClick={() => onOpenStoryBeats(book.id)}
-              aria-label={`Open ${book.title}`}
             >
               {isEditMode && (
                 <button
                   className="bookshelf__delete"
                   type="button"
-                  onClick={(event) => {
-                    event.stopPropagation()
-                    handleDeleteBook(book.id)
-                  }}
+                  onClick={() => deleteBook(book.id)}
                   aria-label={`Delete ${book.title}`}
                 >
                   ×
                 </button>
               )}
-              <div className="bookshelf__text-block">
-                <span className="bookshelf__label-small">A story of</span>
-                <span className="bookshelf__label-title story-title">
-                  {book.title}
+              <button
+                className="bookshelf__book-button"
+                type="button"
+                onClick={() => onOpenStoryBeats(book.id)}
+                aria-label={`Open ${book.title}`}
+              >
+                <div className="bookshelf__text-block">
+                  <span className="bookshelf__label-small">A story of</span>
+                  <span className="bookshelf__label-title story-title">
+                    {book.title}
+                  </span>
+                </div>
+                <img
+                  className="bookshelf__glyph"
+                  src={virtueGlyphs[book.title as TitleOption] ?? virtueGlyphs.Courage}
+                  alt={`${book.title} glyph`}
+                />
+                <span className="bookshelf__volume">
+                  Vol {volumeCounts[book.title]}
                 </span>
-              </div>
-              <img
-                className="bookshelf__glyph"
-                src={virtueToGlyph[book.title]}
-                alt={`${book.title} glyph`}
-              />
-              <span className="bookshelf__volume">
-                Vol {volumeCounts[book.title]}
-              </span>
-            </button>
+              </button>
+            </div>
           ))}
         </section>
+
         {isPromptOpen && (
-          <div className="bookshelf__prompt" role="dialog" aria-modal="true">
-            <div className="bookshelf__prompt-card">
-              <h2>Add a virtue</h2>
-              <label className="bookshelf__prompt-field">
-                Choose a title
-                <select
-                  value={selectedVirtue}
-                  onChange={(event) => setSelectedVirtue(event.target.value)}
-                >
-                  {virtues.map((virtue) => (
-                    <option value={virtue} key={virtue}>
-                      {virtue}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="bookshelf__prompt-actions">
-                <button type="button" onClick={closePrompt}>
+          <Modal
+            title="Add a virtue"
+            actions={
+              <>
+                <button type="button" onClick={() => setIsPromptOpen(false)}>
                   Cancel
                 </button>
                 <button type="button" onClick={handleAdd}>
                   Add
                 </button>
-              </div>
-            </div>
-          </div>
+              </>
+            }
+          >
+            <label className="modal-field">
+              Choose a title
+              <select
+                value={selectedVirtue}
+                onChange={(e) => setSelectedVirtue(e.target.value as TitleOption)}
+              >
+                {titleOptions.map((virtue) => (
+                  <option value={virtue} key={virtue}>
+                    {virtue}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </Modal>
         )}
       </main>
     </div>
