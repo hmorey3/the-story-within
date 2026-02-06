@@ -40,8 +40,14 @@ const createUserMessage = (content: string): ChatMessage => ({
   content,
 })
 
+const welcomeMessage: ChatMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: "Welcome traveler! I'm here to author your very own mythical story of transformation. Let's discover the story within.",
+}
+
 const initialState: SessionState = {
-  messages: [],
+  messages: [welcomeMessage],
   promptSuggestions: [],
   isLoading: false,
 }
@@ -107,9 +113,11 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
   const [inputValue, setInputValue] = useState('')
   const [state, dispatch] = useReducer(sessionReducer, initialState)
 
-  // Initial message on open
+  // Fetch AI's opening question when chatbot opens
+  // Welcome message is already shown; this adds the AI's first question
   useEffect(() => {
-    if (!isOpen || state.messages.length > 0) return
+    // Only fetch if open and we only have the welcome message
+    if (!isOpen || state.messages.length > 1) return
 
     let active = true
     dispatch({ type: 'SET_LOADING', isLoading: true })
