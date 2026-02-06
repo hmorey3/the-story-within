@@ -2,9 +2,9 @@ import { useEffect, useReducer, useState } from 'react'
 import { storyBeats } from '../data/storyBeats'
 import { titleOptions } from '../data/storyCatalog'
 import { storyBeatCategories } from '../data/beatCategories'
-import { createBookFromResponse } from '../services/chatbotBooks'
-import { requestOpenAiChatbotTurn } from '../services/openaiChatbot'
-import type { ChatbotApiResponse, PromptSuggestion } from '../types/chatbot'
+import { createBookFromResponse } from './chatbotBooks'
+import { requestOpenAiChatbotTurn } from './openaiChatbot'
+import type { ChatbotApiResponse, PromptSuggestion } from './types'
 
 // Types
 type ChatMessage = {

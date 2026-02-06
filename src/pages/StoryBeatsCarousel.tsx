@@ -3,9 +3,9 @@ import { readStoredBooks, writeStoredBooks } from '../data/books'
 import type { Book, StoryBeatEntry } from '../data/books'
 import type { BeatId } from '../data/storyCatalog'
 import { storyBeatMap, storyBeats } from '../data/storyBeats'
-import CarouselIndicator from '../components/CarouselIndicator'
-import TintMaskFilter from '../components/TintMaskFilter'
-import Modal from '../components/Modal'
+import CarouselIndicator from '../ui/CarouselIndicator'
+import TintMaskFilter from '../ui/TintMaskFilter'
+import Modal from '../ui/Modal'
 import './StoryBeatsCarousel.css'
 
 type StoryBeatsCarouselProps = {

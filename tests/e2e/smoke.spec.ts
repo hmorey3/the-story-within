@@ -15,9 +15,8 @@ test('home loads and can open a book', async ({ page }) => {
   await firstBook.click()
   await expect(page).toHaveURL(/\/story-beats\//)
 
-  await expect(
-    page.getByText(/No story beats yet\. Add one to begin\.|CALL TO ADVENTURE/i)
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Close story beats' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Add a story beat' })).toBeVisible()
 })
 
 test('can add a beat with a note', async ({ page }) => {

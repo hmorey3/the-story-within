@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import type { ChatbotApiResponse } from '../types/chatbot'
+import type { ChatbotApiResponse } from './types'
 import { titleOptions } from '../data/storyCatalog'
 
 type OpenAiRequestOptions = {

@@ -1,4 +1,4 @@
-import type { PromptSuggestion } from '../types/chatbot'
+import type { PromptSuggestion } from './types'
 
 export const formatPromptLabel = (suggestion: PromptSuggestion) => {
   if (suggestion.mode === 'prefix') {

@@ -5,7 +5,7 @@ import {
 } from '../data/books'
 import type { Book, StoryBeatEntry } from '../data/books'
 import { isBeatId } from '../data/storyCatalog'
-import type { BeatRecommendation } from '../types/chatbot'
+import type { BeatRecommendation } from './types'
 
 type CreateBookParams = {
   title: string

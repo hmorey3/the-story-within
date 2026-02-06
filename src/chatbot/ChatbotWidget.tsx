@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { formatPromptLabel } from '../services/chatbotPrompts'
-import { useChatbotSession } from '../hooks/useChatbotSession'
+import { formatPromptLabel } from './chatbotPrompts'
+import { useChatbotSession } from './useChatbotSession'
 import './ChatbotWidget.css'
 
 type ChatbotWidgetProps = {

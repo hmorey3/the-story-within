@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import LibraryPage from './pages/LibraryPage'
 import StoryBeatsCarousel from './pages/StoryBeatsCarousel'
-import ChatbotWidget from './components/ChatbotWidget'
+import ChatbotWidget from './chatbot/ChatbotWidget'
 
 const getStoryBeatId = (path: string) => {
   if (!path.startsWith('/story-beats/')) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import Header from '../components/Header'
-import Modal from '../components/Modal'
+import Header from '../ui/Header'
+import Modal from '../ui/Modal'
 import defaults from '../defaults.json'
 import { titleOptions, virtueGlyphs, type DefaultsConfig } from '../data/storyCatalog'
 import type { TitleOption } from '../data/storyCatalog'
