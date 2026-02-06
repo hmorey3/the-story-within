@@ -1,7 +1,7 @@
 {
-  "books": [
+  "stories": [
     {
-      "id": "book-courage",
+      "id": "story-courage",
       "title": "Courage",
       "beats": [
         { "id": "call-to-adventure", "note": "" },
@@ -10,7 +10,7 @@
       ]
     },
     {
-      "id": "book-growth",
+      "id": "story-growth",
       "title": "Growth",
       "beats": [
         { "id": "strange-omen", "note": "" },
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "id": "book-awakening",
+      "id": "story-awakening",
       "title": "Awakening",
       "beats": [
         { "id": "descend-into-abyss", "note": "" },
@@ -27,7 +27,7 @@
       ]
     },
     {
-      "id": "book-rebirth",
+      "id": "story-rebirth",
       "title": "Rebirth",
       "beats": [
         { "id": "maiden", "note": "" },
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "id": "book-trials",
+      "id": "story-trials",
       "title": "Trials",
       "beats": [
         { "id": "call-to-adventure", "note": "" },

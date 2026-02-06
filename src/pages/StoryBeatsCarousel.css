@@ -41,13 +41,6 @@
   /* filter: url(#tint-mask); */
 }
 
-.story-carousel__filters {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
 .story-carousel__indicator {
   display: flex;
   gap: 0.45rem;
@@ -216,87 +209,6 @@
   background: rgba(255, 255, 255, 0.95);
   color: #3d342a;
   box-shadow: 0 12px 28px rgba(40, 30, 20, 0.14);
-}
-
-.story-carousel__prompt {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(6px);
-}
-
-.story-carousel__prompt-card {
-  background: #ffffff;
-  border: 1px solid #eee6dd;
-  padding: 2rem;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(31, 23, 14, 0.1);
-  min-width: min(320px, 80vw);
-  display: grid;
-  gap: 1.25rem;
-  color: #3d342a;
-}
-
-.story-carousel__prompt-card h2 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.story-carousel__prompt-field {
-  display: grid;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  color: #5a4f43;
-}
-
-.story-carousel__prompt-field select {
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid #e1d6c9;
-  font-family: inherit;
-  font-size: 1rem;
-  background: #fffdfb;
-  color: #3d342a;
-}
-
-.story-carousel__prompt-field textarea {
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid #e1d6c9;
-  font-family: inherit;
-  font-size: 1rem;
-  background: #fffdfb;
-  color: #3d342a;
-  resize: vertical;
-}
-
-.story-carousel__prompt-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.story-carousel__prompt-actions button {
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 0.95rem;
-  border: none;
-  box-shadow: none;
-}
-
-.story-carousel__prompt-actions button:last-child {
-  background: #3d342a;
-  color: #ffffff;
-  border-color: transparent;
-}
-
-.story-carousel__prompt-delete {
-  color: #ac3800;
 }
 
 @media (max-width: 600px) {

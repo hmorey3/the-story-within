@@ -3,7 +3,7 @@ import LibraryPage from './pages/LibraryPage'
 import StoryBeatsCarousel from './pages/StoryBeatsCarousel'
 import ChatbotWidget from './chatbot/ChatbotWidget'
 
-const getStoryBeatId = (path: string) => {
+const getStoryId = (path: string) => {
   if (!path.startsWith('/story-beats/')) {
     return null
   }
@@ -33,17 +33,14 @@ function AppRouter() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const storyBeatId = getStoryBeatId(pathname)
-  if (storyBeatId) {
+  const storyId = getStoryId(pathname)
+  if (storyId) {
     return (
       <>
-        <StoryBeatsCarousel
-          bookId={storyBeatId}
-          onClose={() => navigate('/')}
-        />
+        <StoryBeatsCarousel storyId={storyId} onClose={() => navigate('/')} />
         <ChatbotWidget
-          onOpenStoryBeats={(bookId) =>
-            navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+          onOpenStoryBeats={(storyId) =>
+            navigate(`/story-beats/${encodeURIComponent(storyId)}`)
           }
         />
       </>
@@ -53,13 +50,13 @@ function AppRouter() {
   return (
     <>
       <LibraryPage
-        onOpenStoryBeats={(bookId) =>
-          navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+        onOpenStoryBeats={(storyId) =>
+          navigate(`/story-beats/${encodeURIComponent(storyId)}`)
         }
       />
       <ChatbotWidget
-        onOpenStoryBeats={(bookId) =>
-          navigate(`/story-beats/${encodeURIComponent(bookId)}`)
+        onOpenStoryBeats={(storyId) =>
+          navigate(`/story-beats/${encodeURIComponent(storyId)}`)
         }
       />
     </>

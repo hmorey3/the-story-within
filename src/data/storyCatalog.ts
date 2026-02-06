@@ -55,12 +55,12 @@ export type DefaultBeatEntry = {
   note: string
 }
 
-export type DefaultBook = {
+export type DefaultStory = {
   id: string
   title: TitleOption
   beats: DefaultBeatEntry[]
 }
 
 export type DefaultsConfig = {
-  books: DefaultBook[]
+  stories: DefaultStory[]
 }

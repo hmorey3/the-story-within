@@ -1,81 +1,56 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Header from '../ui/Header'
 import Modal from '../ui/Modal'
 import defaults from '../defaults.json'
-import { titleOptions, virtueGlyphs, type DefaultsConfig } from '../data/storyCatalog'
-import type { TitleOption } from '../data/storyCatalog'
 import {
-  createBookId,
-  readStoredBooks,
-  writeStoredBooks,
-} from '../data/books'
-import type { Book } from '../data/books'
+  titleOptions,
+  virtueGlyphs,
+  type DefaultsConfig,
+  type TitleOption,
+} from '../data/storyCatalog'
+import {
+  createStoryId,
+  loadOrSeedStories,
+  updateStoredStories,
+  type Story,
+} from '../data/stories'
 import './LibraryPage.css'
 
 type LibraryPageProps = {
-  onOpenStoryBeats: (bookId: string) => void
+  onOpenStoryBeats: (storyId: string) => void
 }
 
-const { books: defaultBooks } = defaults as DefaultsConfig
+const { stories: defaultStories } = defaults as DefaultsConfig
 
 function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
-  const [books, setBooks] = useState<Book[]>([])
+  const [stories, setStories] = useState<Story[]>(() =>
+    loadOrSeedStories(defaultStories, 3)
+  )
   const [isPromptOpen, setIsPromptOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedVirtue, setSelectedVirtue] = useState<TitleOption>(titleOptions[0])
 
-  const volumeCounts = books.reduce<Record<string, number>>((acc, book) => {
-    acc[book.title] = (acc[book.title] ?? 0) + 1
-    return acc
-  }, {})
+  const volumeCounts = useMemo(
+    () =>
+      stories.reduce<Record<string, number>>((acc, story) => {
+        acc[story.title] = (acc[story.title] ?? 0) + 1
+        return acc
+      }, {}),
+    [stories]
+  )
 
-  useEffect(() => {
-    const stored = readStoredBooks()
-    if (stored.length > 0) {
-      setBooks(stored)
-      return
-    }
-
-    const seeded = [...defaultBooks]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-    writeStoredBooks(seeded)
-    setBooks(seeded)
-  }, [])
-
-  const addBook = (virtue: string) => {
-    const newBook: Book = {
-      id: createBookId(),
-      title: virtue,
-      beats: [],
-    }
-    const next = [newBook, ...books]
-    setBooks(next)
-    writeStoredBooks(next)
+  const addStory = (title: string) => {
+    const story: Story = { id: createStoryId(), title, beats: [] }
+    const next = updateStoredStories((current) => [story, ...current])
+    setStories(next)
   }
 
-  const deleteBook = (bookId: string) => {
-    const next = books.filter((book) => book.id !== bookId)
-    setBooks(next)
-    writeStoredBooks(next)
-    if (next.length === 0) {
-      setIsEditMode(false)
-    }
-  }
-
-  const handleAdd = () => {
-    if (!selectedVirtue) {
-      setIsPromptOpen(false)
-      return
-    }
-    addBook(selectedVirtue)
-    setIsPromptOpen(false)
-    setIsEditMode(false)
-  }
-
-  const openPrompt = () => {
-    setSelectedVirtue(titleOptions[0])
-    setIsPromptOpen(true)
+  const deleteStory = (storyId: string) => {
+    const next = updateStoredStories((current) =>
+      current.filter((story) => story.id !== storyId)
+    )
+    setStories(next)
+    if (next.length === 0) setIsEditMode(false)
   }
 
   return (
@@ -98,8 +73,8 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
                 <button
                   className="bookshelf__add-button"
                   type="button"
-                  onClick={openPrompt}
-                  aria-label="Add a new book"
+                  onClick={() => setIsPromptOpen(true)}
+                  aria-label="Add a new story"
                 >
                   +
                 </button>
@@ -115,17 +90,17 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
             )}
           </div>
 
-          {books.map((book) => (
+          {stories.map((story) => (
             <div
               className="bookshelf__slot bookshelf__slot--book"
-              key={book.id}
+              key={story.id}
             >
               {isEditMode && (
                 <button
                   className="bookshelf__delete"
                   type="button"
-                  onClick={() => deleteBook(book.id)}
-                  aria-label={`Delete ${book.title}`}
+                  onClick={() => deleteStory(story.id)}
+                  aria-label={`Delete ${story.title}`}
                 >
                   ×
                 </button>
@@ -133,23 +108,23 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               <button
                 className="bookshelf__book-button"
                 type="button"
-                onClick={() => onOpenStoryBeats(book.id)}
-                aria-label={`Open ${book.title}`}
+                onClick={() => onOpenStoryBeats(story.id)}
+                aria-label={`Open ${story.title}`}
               >
                 <div className="bookshelf__text-block">
                   <span className="bookshelf__label-small">A story of</span>
                   <span className="bookshelf__label-title story-title">
-                    {book.title}
+                    {story.title}
                   </span>
                 </div>
                 <img
                   className="bookshelf__glyph"
-                  src={virtueGlyphs[book.title as TitleOption] ?? virtueGlyphs.Courage}
-                  alt={`${book.title} glyph`}
+                  src={
+                    virtueGlyphs[story.title as TitleOption] ?? virtueGlyphs.Courage
+                  }
+                  alt={`${story.title} glyph`}
                 />
-                <span className="bookshelf__volume">
-                  Vol {volumeCounts[book.title]}
-                </span>
+                <span className="bookshelf__volume">Vol {volumeCounts[story.title]}</span>
               </button>
             </div>
           ))}
@@ -163,7 +138,14 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
                 <button type="button" onClick={() => setIsPromptOpen(false)}>
                   Cancel
                 </button>
-                <button type="button" onClick={handleAdd}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addStory(selectedVirtue)
+                    setIsPromptOpen(false)
+                    setIsEditMode(false)
+                  }}
+                >
                   Add
                 </button>
               </>

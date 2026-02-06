@@ -1,21 +1,17 @@
-import {
-  createBookId,
-  readStoredBooks,
-  writeStoredBooks,
-} from '../data/books'
-import type { Book, StoryBeatEntry } from '../data/books'
+import { createStoryId, updateStoredStories } from '../data/stories'
+import type { Story, StoryBeatEntry } from '../data/stories'
 import { isBeatId } from '../data/storyCatalog'
 import type { BeatRecommendation } from './types'
 
-type CreateBookParams = {
+type CreateStoryParams = {
   title: string
   beatRecommendations: BeatRecommendation[]
 }
 
-export const createBookFromResponse = ({
+export const createStoryFromResponse = ({
   title,
   beatRecommendations,
-}: CreateBookParams) => {
+}: CreateStoryParams) => {
   const beats: StoryBeatEntry[] = beatRecommendations
     .map((beat) =>
       isBeatId(beat.beatId)
@@ -23,19 +19,11 @@ export const createBookFromResponse = ({
             id: beat.beatId,
             note: beat.summary,
           }
-        : null,
+        : null
     )
     .filter((beat): beat is StoryBeatEntry => Boolean(beat))
 
-  const newBook: Book = {
-    id: createBookId(),
-    title,
-    beats,
-  }
-
-  const stored = readStoredBooks()
-  const next = [newBook, ...stored]
-  writeStoredBooks(next)
-
-  return newBook
+  const story: Story = { id: createStoryId(), title, beats }
+  updateStoredStories((current) => [story, ...current])
+  return story
 }

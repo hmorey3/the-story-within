@@ -1,55 +1,65 @@
 import { useEffect, useMemo, useState } from 'react'
-import { readStoredBooks, writeStoredBooks } from '../data/books'
-import type { Book, StoryBeatEntry } from '../data/books'
+import {
+  getStoredStory,
+  updateStoredStories,
+  type Story,
+  type StoryBeatEntry,
+} from '../data/stories'
 import type { BeatId } from '../data/storyCatalog'
 import { storyBeatMap, storyBeats } from '../data/storyBeats'
 import CarouselIndicator from '../ui/CarouselIndicator'
-import TintMaskFilter from '../ui/TintMaskFilter'
 import Modal from '../ui/Modal'
 import './StoryBeatsCarousel.css'
 
 type StoryBeatsCarouselProps = {
-  bookId: string
+  storyId: string
   onClose: () => void
 }
 
-function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
-  const [book, setBook] = useState<Book | null>(null)
+function StoryBeatsCarousel({ storyId, onClose }: StoryBeatsCarouselProps) {
+  const [story, setStory] = useState<Story | null>(() => getStoredStory(storyId))
   const [index, setIndex] = useState(0)
   const [isPromptOpen, setIsPromptOpen] = useState(false)
-  const [selectedBeat, setSelectedBeat] = useState<string>(storyBeats[0]?.id ?? '')
+  const [selectedBeat, setSelectedBeat] = useState(storyBeats[0]?.id ?? '')
   const [note, setNote] = useState('')
   const [editIndex, setEditIndex] = useState<number | null>(null)
   const [flashMessage, setFlashMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    const stored = readStoredBooks()
-    const selected = stored.find((item) => item.id === bookId) ?? null
-    setBook(selected)
+    setStory(getStoredStory(storyId))
     setIndex(0)
-  }, [bookId])
+  }, [storyId])
 
   const slides = useMemo(() => {
-    if (!book) return []
+    if (!story) return []
 
-    return book.beats
+    return story.beats
       .map((entry) => {
         const beat = storyBeatMap.get(entry.id)
         if (!beat) return null
         return { ...beat, note: entry.note }
       })
       .filter((beat): beat is NonNullable<typeof beat> => Boolean(beat))
-  }, [book])
+  }, [story])
 
   useEffect(() => {
     if (index >= slides.length) setIndex(0)
   }, [index, slides.length])
 
-  const goNext = () => setIndex((i) => (i + 1) % Math.max(slides.length, 1))
-  const goPrev = () => setIndex((i) => (i - 1 + Math.max(slides.length, 1)) % Math.max(slides.length, 1))
+  const showFlash = (message: string) => {
+    setFlashMessage(message)
+    window.setTimeout(() => setFlashMessage(null), 1500)
+  }
+
+  const saveStory = (updated: Story) => {
+    updateStoredStories((current) =>
+      current.map((item) => (item.id === updated.id ? updated : item))
+    )
+    setStory(updated)
+  }
 
   const openAddPrompt = () => {
-    if (!book) return
+    if (!story) return
     setSelectedBeat(storyBeats[0]?.id ?? '')
     setNote('')
     setEditIndex(null)
@@ -57,8 +67,8 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
   }
 
   const openEditPrompt = (beatIndex: number) => {
-    if (!book) return
-    const entry = book.beats[beatIndex]
+    if (!story) return
+    const entry = story.beats[beatIndex]
     if (!entry) return
     setSelectedBeat(entry.id)
     setNote(entry.note)
@@ -66,58 +76,41 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     setIsPromptOpen(true)
   }
 
-  const saveBook = (updated: Book) => {
-    const stored = readStoredBooks()
-    const next = stored.map((item) => (item.id === book?.id ? updated : item))
-    writeStoredBooks(next)
-    setBook(updated)
-  }
-
-  const showFlash = (message: string) => {
-    setFlashMessage(message)
-    window.setTimeout(() => setFlashMessage(null), 1500)
-  }
-
   const handleSaveBeat = () => {
-    if (!book || !selectedBeat) {
+    if (!story || !selectedBeat) {
       setIsPromptOpen(false)
       return
     }
 
     const entry: StoryBeatEntry = { id: selectedBeat as BeatId, note: note.trim() }
-    const updatedBeats = [...book.beats]
+    const beats = [...story.beats]
+    if (editIndex === null) beats.push(entry)
+    else beats[editIndex] = entry
 
-    if (editIndex === null) {
-      updatedBeats.push(entry)
-    } else {
-      updatedBeats[editIndex] = entry
-    }
-
-    saveBook({ ...book, beats: updatedBeats })
-    setIndex(updatedBeats.length - 1)
+    saveStory({ ...story, beats })
+    setIndex(beats.length - 1)
     setIsPromptOpen(false)
     showFlash(editIndex === null ? 'Beat added.' : 'Beat updated.')
   }
 
   const handleDeleteBeat = () => {
-    if (!book || editIndex === null) {
+    if (!story || editIndex === null) {
       setIsPromptOpen(false)
       return
     }
 
-    saveBook({
-      ...book,
-      beats: book.beats.filter((_, idx) => idx !== editIndex),
+    saveStory({
+      ...story,
+      beats: story.beats.filter((_, idx) => idx !== editIndex),
     })
     setIsPromptOpen(false)
+    showFlash('Beat deleted.')
   }
 
   const currentSlide = slides[index] ?? null
 
   return (
     <div className="story-carousel">
-      <TintMaskFilter hexColor="#000000ff" />
-
       <button
         className="story-carousel__close"
         type="button"
@@ -131,7 +124,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
         className="story-carousel__add"
         type="button"
         onClick={openAddPrompt}
-        disabled={!book}
+        disabled={!story}
         aria-label="Add a story beat"
       >
         +
@@ -141,7 +134,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
         className="story-carousel__edit-top"
         type="button"
         onClick={() => openEditPrompt(index)}
-        disabled={!book || slides.length === 0}
+        disabled={!story || slides.length === 0}
         aria-label="Edit current story beat"
       >
         ✎
@@ -150,7 +143,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       <button
         className="story-carousel__arrow story-carousel__arrow--left"
         type="button"
-        onClick={goPrev}
+        onClick={() => setIndex((i) => (i - 1 + Math.max(slides.length, 1)) % Math.max(slides.length, 1))}
         disabled={slides.length < 2}
         aria-label="Previous story beat"
       >
@@ -158,7 +151,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       </button>
 
       <div className="story-carousel__frame">
-        {!book ? (
+        {!story ? (
           <div className="story-carousel__empty">
             <p>This story could not be found.</p>
             <button type="button" onClick={onClose}>
@@ -166,9 +159,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
             </button>
           </div>
         ) : slides.length === 0 ? (
-          <div className="story-carousel__empty">
-            No story beats yet. Add one to begin.
-          </div>
+          <div className="story-carousel__empty">No story beats yet. Add one to begin.</div>
         ) : (
           <div
             className="story-carousel__track"
@@ -196,7 +187,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       <button
         className="story-carousel__arrow story-carousel__arrow--right"
         type="button"
-        onClick={goNext}
+        onClick={() => setIndex((i) => (i + 1) % Math.max(slides.length, 1))}
         disabled={slides.length < 2}
         aria-label="Next story beat"
       >
@@ -234,10 +225,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
         >
           <label className="modal-field">
             Choose a beat
-            <select
-              value={selectedBeat}
-              onChange={(e) => setSelectedBeat(e.target.value)}
-            >
+            <select value={selectedBeat} onChange={(e) => setSelectedBeat(e.target.value)}>
               {storyBeats.map((beat) => (
                 <option value={beat.id} key={beat.id}>
                   {beat.title}

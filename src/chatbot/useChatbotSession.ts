@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react'
 import { storyBeats } from '../data/storyBeats'
 import { titleOptions } from '../data/storyCatalog'
 import { storyBeatCategories } from '../data/beatCategories'
-import { createBookFromResponse } from './chatbotBooks'
+import { createStoryFromResponse } from './chatbotStories'
 import { requestOpenAiChatbotTurn } from './openaiChatbot'
 import type { ChatbotApiResponse, PromptSuggestion } from './types'
 
@@ -108,7 +108,7 @@ async function callChatbotApi(
 // Hook
 type UseChatbotSessionOptions = {
   isOpen: boolean
-  onComplete: (bookId: string) => void
+  onComplete: (storyId: string) => void
 }
 
 export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptions) => {
@@ -177,11 +177,11 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
     // AI signals completion - create the book with final beat recommendations
     if (response.isComplete) {
       const title = response.titleRecommendation?.title ?? 'Untitled'
-      const newBook = createBookFromResponse({
+      const story = createStoryFromResponse({
         title,
         beatRecommendations: response.beatRecommendations,
       })
-      onComplete(newBook.id)
+      onComplete(story.id)
       dispatch({ type: 'RESET' })
     }
   }

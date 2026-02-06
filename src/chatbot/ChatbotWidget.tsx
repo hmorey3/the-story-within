@@ -4,7 +4,7 @@ import { useChatbotSession } from './useChatbotSession'
 import './ChatbotWidget.css'
 
 type ChatbotWidgetProps = {
-  onOpenStoryBeats: (bookId: string) => void
+  onOpenStoryBeats: (storyId: string) => void
 }
 
 function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
@@ -22,8 +22,8 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
     submitMessage,
   } = useChatbotSession({
     isOpen,
-    onComplete: (bookId) => {
-      onOpenStoryBeats(bookId)
+    onComplete: (storyId) => {
+      onOpenStoryBeats(storyId)
       setIsOpen(false)
     },
   })
