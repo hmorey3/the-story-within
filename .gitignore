@@ -28,3 +28,10 @@ dist-ssr
 
 # Playwright MCP
 .playwright-mcp/
+
+# Local UI review screenshots
+ui-review*/
+
+# Playwright
+/test-results/
+/playwright-report/

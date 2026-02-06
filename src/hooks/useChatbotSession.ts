@@ -89,12 +89,14 @@ const buildPayload = (messages: ChatMessage[]) => ({
   titleMaxLength: 10,
 })
 
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined
+const isConfigured = Boolean(apiKey)
+
 async function callChatbotApi(
   messages: ChatMessage[],
   userInput: string
 ): Promise<ChatbotApiResponse> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined
-  if (!apiKey) throw new Error('Missing VITE_OPENAI_API_KEY')
+  if (!apiKey) throw new Error('CHATBOT_NOT_CONFIGURED')
 
   return requestOpenAiChatbotTurn({
     apiKey,
@@ -119,6 +121,16 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
     // Only fetch if open and we only have the welcome message
     if (!isOpen || state.messages.length > 1) return
 
+    if (!isConfigured) {
+      dispatch({
+        type: 'ADD_MESSAGE',
+        message: createAssistantMessage(
+          'AI chat is disabled (missing VITE_OPENAI_API_KEY). Copy .env.example to .env, add your key, and restart the dev server.'
+        ),
+      })
+      return
+    }
+
     let active = true
     dispatch({ type: 'SET_LOADING', isLoading: true })
 
@@ -134,7 +146,9 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
         dispatch({ type: 'SET_LOADING', isLoading: false })
       })
 
-    return () => { active = false }
+    return () => {
+      active = false
+    }
   }, [isOpen, state.messages.length])
 
   const submitMessage = async (messageText?: string) => {
@@ -173,6 +187,7 @@ export const useChatbotSession = ({ isOpen, onComplete }: UseChatbotSessionOptio
   }
 
   return {
+    isConfigured,
     inputValue,
     setInputValue,
     messages: state.messages,

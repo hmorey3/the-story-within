@@ -5,6 +5,13 @@ applyTo: '**/*.jsx, **/*.tsx, **/*.js, **/*.ts, **/*.css, **/*.scss'
 
 # ReactJS Development Instructions
 
+## Project-specific preferences (The Story Within)
+- Keep code **brief** and **modular** (small components/functions; avoid clever abstractions).
+- Prefer **minimal comments**; make naming and structure do the explaining.
+- Prefer **happy-path** behavior with **minimal edge-case handling** unless the edge case is likely and user-facing.
+- Keep UI state machines simple and explicit.
+- Tests: prefer a few **high-signal smoke tests** (basic flows) over exhaustive edge-case coverage.
+
 Instructions for building high-quality ReactJS applications with modern patterns, hooks, and best practices following the official React documentation at https://react.dev.
 
 ## Project Context

@@ -20,6 +20,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
   const [selectedBeat, setSelectedBeat] = useState<string>(storyBeats[0]?.id ?? '')
   const [note, setNote] = useState('')
   const [editIndex, setEditIndex] = useState<number | null>(null)
+  const [flashMessage, setFlashMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const stored = readStoredBooks()
@@ -72,6 +73,11 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     setBook(updated)
   }
 
+  const showFlash = (message: string) => {
+    setFlashMessage(message)
+    window.setTimeout(() => setFlashMessage(null), 1500)
+  }
+
   const handleSaveBeat = () => {
     if (!book || !selectedBeat) {
       setIsPromptOpen(false)
@@ -90,6 +96,7 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
     saveBook({ ...book, beats: updatedBeats })
     setIndex(updatedBeats.length - 1)
     setIsPromptOpen(false)
+    showFlash(editIndex === null ? 'Beat added.' : 'Beat updated.')
   }
 
   const handleDeleteBeat = () => {
@@ -153,7 +160,10 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       <div className="story-carousel__frame">
         {!book ? (
           <div className="story-carousel__empty">
-            This story could not be found.
+            <p>This story could not be found.</p>
+            <button type="button" onClick={onClose}>
+              Return home
+            </button>
           </div>
         ) : slides.length === 0 ? (
           <div className="story-carousel__empty">
@@ -192,6 +202,12 @@ function StoryBeatsCarousel({ bookId, onClose }: StoryBeatsCarouselProps) {
       >
         ›
       </button>
+
+      {flashMessage && (
+        <div className="story-carousel__flash" role="status">
+          {flashMessage}
+        </div>
+      )}
 
       {isPromptOpen && (
         <Modal

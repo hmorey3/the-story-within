@@ -13,6 +13,7 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const {
+    isConfigured,
     inputValue,
     setInputValue,
     messages,
@@ -110,7 +111,7 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
               value={inputValue}
               onChange={(event) => setInputValue(event.target.value)}
               placeholder="Type your response..."
-              disabled={pendingResponse}
+              disabled={pendingResponse || !isConfigured}
               aria-label="Chat input"
               ref={inputRef}
               onKeyDown={(event) => {
@@ -123,12 +124,18 @@ function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
             <button
               type="button"
               onClick={() => submitMessage()}
-              disabled={pendingResponse || !inputValue.trim()}
+              disabled={pendingResponse || !isConfigured || !inputValue.trim()}
               aria-label="Send message"
             >
               Send
             </button>
           </div>
+
+          {!isConfigured && (
+            <p className="chatbot__hint">
+              Set <code>VITE_OPENAI_API_KEY</code> in <code>.env</code> to enable AI chat.
+            </p>
+          )}
         </div>
       )}
     </div>
