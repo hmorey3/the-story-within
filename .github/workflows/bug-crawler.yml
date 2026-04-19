@@ -1,0 +1,48 @@
+name: Bug Crawler
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL to crawl (leave blank for default)'
+        required: false
+        default: ''
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install script dependencies
+        run: npm install
+        working-directory: scripts
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+        working-directory: scripts
+
+      - name: Run bug crawler
+        run: node bug-crawler.mjs
+        working-directory: scripts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_URL: ${{ github.event.inputs.target_url || 'https://selfenergycircle.kayos.ai/join' }}
+
+      - name: Upload bug report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bug-report-${{ github.run_number }}
+          path: |
+            scripts/bug-report.md
+            scripts/bug-report.json
+          retention-days: 30
