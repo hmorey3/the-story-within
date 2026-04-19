@@ -1,15 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { spawn } from 'child_process';
+import { createInterface } from 'readline';
 import { writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
 
 const TARGET_URL = process.env.TARGET_URL || 'https://selfenergycircle.kayos.ai/join';
 const MAX_ITERATIONS = 30;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const mcpBin = path.resolve(__dirname, 'node_modules/.bin/playwright-mcp');
+const mcpBin = path.resolve(__dirname, 'node_modules/.bin/mcp-server-playwright');
 
 const SYSTEM_PROMPT = `You are a QA engineer doing automated browser testing. Your job is to crawl a website and find bugs.
 
@@ -32,27 +33,90 @@ If no bugs are found, output:
 {"bugs": []}
 \`\`\``;
 
+// Minimal JSON-RPC stdio client that bypasses MCP SDK schema validation
+class RawMcpClient {
+  constructor(command, args) {
+    this.proc = spawn(command, args, { env: process.env, stdio: ['pipe', 'pipe', 'inherit'] });
+    this.rl = createInterface({ input: this.proc.stdout });
+    this.pending = new Map();
+    this.nextId = 1;
+
+    this.rl.on('line', (line) => {
+      if (!line.trim()) return;
+      try {
+        const msg = JSON.parse(line);
+        if (msg.id != null && this.pending.has(msg.id)) {
+          const { resolve, reject } = this.pending.get(msg.id);
+          this.pending.delete(msg.id);
+          if (msg.error) reject(new Error(msg.error.message));
+          else resolve(msg.result);
+        }
+      } catch { /* ignore non-JSON lines */ }
+    });
+
+    this.proc.on('error', (err) => console.error('MCP process error:', err));
+  }
+
+  request(method, params = {}) {
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      const msg = JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n';
+      this.proc.stdin.write(msg);
+    });
+  }
+
+  async initialize() {
+    return this.request('initialize', {
+      protocolVersion: '2024-11-05',
+      capabilities: {},
+      clientInfo: { name: 'bug-crawler', version: '1.0.0' },
+    });
+  }
+
+  async listTools() {
+    const result = await this.request('tools/list');
+    return result.tools ?? [];
+  }
+
+  async callTool(name, args) {
+    const result = await this.request('tools/call', { name, arguments: args });
+    return result.content ?? [];
+  }
+
+  close() {
+    this.proc.kill();
+  }
+}
+
+// Convert MCP tool result content to Anthropic tool_result content format
+function normalizeMcpContent(content) {
+  return (content ?? []).map((block) => {
+    if (block.type === 'image') {
+      return {
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: block.mimeType ?? 'image/png',
+          data: block.data,
+        },
+      };
+    }
+    return block;
+  });
+}
+
 async function main() {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const transport = new StdioClientTransport({
-    command: mcpBin,
-    args: ['--headless'],
-    env: { ...process.env },
-  });
+  const mcpClient = new RawMcpClient(mcpBin, ['--headless']);
+  await mcpClient.initialize();
 
-  const mcpClient = new Client(
-    { name: 'bug-crawler', version: '1.0.0' },
-    { capabilities: {} }
-  );
-
-  await mcpClient.connect(transport);
-
-  const { tools: mcpTools } = await mcpClient.listTools();
+  const mcpTools = await mcpClient.listTools();
   const tools = mcpTools.map((t) => ({
     name: t.name,
     description: t.description,
-    input_schema: t.inputSchema,
+    input_schema: { type: 'object', ...(t.inputSchema ?? {}) },
   }));
 
   console.log(`Connected to Playwright MCP. ${tools.length} tools available.`);
@@ -93,11 +157,8 @@ async function main() {
         console.log(`  -> ${block.name}`);
         let result;
         try {
-          const mcpResult = await mcpClient.callTool({
-            name: block.name,
-            arguments: block.input,
-          });
-          result = mcpResult.content;
+          const raw = await mcpClient.callTool(block.name, block.input);
+          result = normalizeMcpContent(raw);
         } catch (err) {
           result = [{ type: 'text', text: `Error: ${err.message}` }];
         }
@@ -125,7 +186,7 @@ async function main() {
     messages.push({ role: 'assistant', content: finalResponse.content });
   }
 
-  await mcpClient.close();
+  mcpClient.close();
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
   const text = (lastAssistant?.content ?? [])
@@ -147,17 +208,37 @@ async function main() {
 
   console.log(`Found ${bugs.length} bug(s).`);
 
-  const report = {
-    url: TARGET_URL,
-    date: new Date().toISOString(),
-    total: bugs.length,
-    bugs,
-  };
+  const report = { url: TARGET_URL, date: new Date().toISOString(), total: bugs.length, bugs };
+  const jsonReport = JSON.stringify(report, null, 2);
+  const mdReport = buildMarkdown(report);
 
-  writeFileSync('bug-report.json', JSON.stringify(report, null, 2));
-  writeFileSync('bug-report.md', buildMarkdown(report));
-
+  writeFileSync('bug-report.json', jsonReport);
+  writeFileSync('bug-report.md', mdReport);
   console.log('Reports written: bug-report.json, bug-report.md');
+
+  await sendEmail(mdReport, jsonReport);
+}
+
+async function sendEmail(markdownReport, jsonReport) {
+  const { SMTP_USER, SMTP_PASS, RECIPIENT_EMAIL } = process.env;
+  if (!SMTP_USER || !SMTP_PASS || !RECIPIENT_EMAIL) {
+    console.log('SMTP not configured — skipping email.');
+    return;
+  }
+  const transport = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+  await transport.sendMail({
+    from: SMTP_USER,
+    to: RECIPIENT_EMAIL,
+    subject: `Bug Report: ${TARGET_URL} — ${new Date().toDateString()}`,
+    text: markdownReport,
+    attachments: [{ filename: 'bug-report.json', content: jsonReport }],
+  });
+  console.log(`Email sent to ${RECIPIENT_EMAIL}`);
 }
 
 function buildMarkdown({ url, date, bugs }) {
@@ -189,10 +270,7 @@ function buildMarkdown({ url, date, bugs }) {
     }
   }
 
-  if (bugs.length === 0) {
-    lines.push('No bugs found.');
-  }
-
+  if (bugs.length === 0) lines.push('No bugs found.');
   return lines.join('\n');
 }
 
