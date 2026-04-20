@@ -1,40 +1,35 @@
 # Bug Crawl — Self-Energy Circle
 
-## How to run a bug crawl
+## How to start
 
-1. Get a magic link by going to https://selfenergycircle.kayos.ai and requesting one for your email
-2. Say: **"Run the bug crawl"** and paste the magic link when asked
+When the user asks to run a bug crawl, ask them for a magic link before doing anything else. Tell them:
 
-That's it. Claude will handle the rest and write the results to `scripts/bug-report.md`.
+> To get started, I need a magic link to log into the site.
+>
+> Here's how to get one:
+> 1. Go to **https://selfenergycircle.kayos.ai**
+> 2. Enter your email address and click "Send Magic Link"
+> 3. Check your email and **copy the link** (don't click it — paste it here instead)
+
+Once they paste the link, proceed with the steps below.
 
 ---
 
-## When asked to run the bug crawl
+## Running the crawl
 
 ### Step 1 — Authenticate
-Navigate to the magic link URL the user provides. Wait 3 seconds for the auth redirect to settle before proceeding.
+Navigate to the magic link URL. Wait a few seconds for the auth redirect to settle before doing anything else.
 
-### Step 2 — Load context
-Read `scripts/user-flows.md` if it exists. Use it as a reference for how the site is supposed to work — it is **not** a skip list. Test every flow every run regardless of what's documented there.
-
-### Step 3 — Crawl https://selfenergycircle.kayos.ai
-Navigate all sections of the site. Be thorough:
-- Visit every page in the nav: Home, Updates, Sessions, Inbox, Members, Resources, Daily Practice, Peer Practice, Settings
-- Open individual inbox messages and threads — don't just check the list view
-- Click into member profiles, meditation panels, resource items, session details
-- Test interactive elements (buttons, forms, navigation)
-- Take screenshots to check for visual/layout issues
+### Step 2 — Discover and explore the site
+Start at the root URL and explore the site as a real user would. Discover pages by navigating links and menus — do not rely on any prior knowledge of the site structure. Be thorough:
+- Visit every section accessible from the navigation
+- Open individual items: messages, threads, profiles, panels, modals
+- Test interactive elements: buttons, forms, tabs, toggles
+- Take screenshots to check for visual and layout issues
 - Check the browser console for errors on each page
 
-### Step 4 — Update user-flows.md
-As you explore, update `scripts/user-flows.md` with:
-1. An ASCII site map of all pages and their relationships
-2. Documented user flows with steps and expected outcomes
-
-The site may have changed since the last run. If something works differently from what's documented but seems intentional and functional, update the flow description rather than filing a bug.
-
-### Step 5 — Write the bug report
-Write findings to `scripts/bug-report.md` using the template below.
+### Step 3 — Write the bug report
+Write findings to `scripts/bug-report.md` using the template at the bottom of this file.
 
 ---
 
@@ -54,13 +49,13 @@ Write findings to `scripts/bug-report.md` using the template below.
 
 Start from what a real user would see and do. Only report something if a user would notice it is broken or confusing.
 
-- Do **not** report error logs, console errors, or network failures as bugs on their own — they are symptoms, not bugs
+- Do **not** report error logs, console errors, or network failures as standalone bugs — they are symptoms, not bugs
 - If you find a user-facing problem (e.g. a button does nothing, content is missing), **then** check the console/network to understand the root cause and include it in the description
-- **Do not report audio or video playback issues** — headless and automated browsers cannot play media. Audio/video that appears paused or shows 0:00 may be fully functional in a real browser. Instead, verify the element has a non-empty `src` attribute as a proxy for whether it's wired up.
+- Do **not** report audio or video playback issues — automated browsers cannot play media, so players will always appear paused or show 0:00 even when fully functional. Check that a media element has a non-empty `src` attribute instead.
 
 ### Severity
 
-- 🔴 **critical** — core functionality completely broken (can't sign up, can't log in, page crashes)
+- 🔴 **critical** — core functionality completely broken (can't log in, page crashes)
 - 🔴 **high** — a primary user action fails or produces wrong results
 - 🟠 **medium** — a secondary feature is broken or behaves incorrectly in a confusing way
 - 🟢 **low** — a noticeable UX problem that affects usability but has a workaround
@@ -94,7 +89,7 @@ Write `scripts/bug-report.md` in this format:
 **Page:** <url>
 
 **What the user experiences:**
-<Description of what the user sees or can't do>
+<What the user sees or can't do>
 
 **Steps to reproduce:**
 1. Go to ...
@@ -102,7 +97,7 @@ Write `scripts/bug-report.md` in this format:
 3. Observe ...
 
 **Root cause:**
-<If found — e.g. from console or network tab>
+<If found via console or network — otherwise omit this section>
 
 ---
 
