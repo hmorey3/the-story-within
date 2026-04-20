@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
 
 const TARGET_URL = process.env.TARGET_URL || 'https://selfenergycircle.kayos.ai/join';
-const MAX_ITERATIONS = 30;
+const MAX_ITERATIONS = 50;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const mcpBin = path.resolve(__dirname, 'node_modules/.bin/mcp-server-playwright');
@@ -30,9 +30,10 @@ You have access to two tools for maintaining a persistent record of how the site
 - \`update_user_flows\`: call this to save your updated knowledge after exploring a section
 
 Use the flows file to:
-- Understand what behavior is expected before deciding if something is a bug
-- Record newly discovered flows and pages as you explore
-- Update a flow if behavior has changed and it looks intentional (new feature), rather than reporting it as a bug
+- Load context from previous sessions, but treat it as a starting point — not ground truth
+- The site may have changed since the last run; use your judgment to decide if a difference is a bug or an intentional improvement
+- If something behaves differently from a documented flow but seems deliberate and functional, update the flow rather than filing a bug
+- Record newly discovered pages and flows as you explore
 - Note which flows you verified as working in this session
 
 The file must contain two sections:
@@ -55,25 +56,38 @@ The file must contain two sections:
 - Actually open messages, threads, and modals — don't just check the list view
 - Call update_user_flows periodically as you learn new things about the site
 
+## How to identify bugs — user experience first
+- Start from what a real user would see and do: navigate, click, read, interact
+- Only report something as a bug if a user would notice it is broken or confusing
+- Do NOT report error logs, console errors, or network failures as bugs on their own — they are not bugs, they are symptoms
+- If you find a user-facing problem (e.g. audio won't play, a button does nothing, content is missing), THEN check the console and network to understand the root cause and include it in the description
+- Example of what NOT to report: "GET /api/foo returns 404" — that is a network log entry, not a bug
+- Example of what TO report: "Audio player shows no duration and nothing plays when you click a meditation" — then note the 404 in the description as the likely cause
+
 ## Severity definitions — only report bugs that meet these bars
-- critical: core functionality is completely broken (e.g. can't sign up, can't log in, page crashes)
-- high: a primary user action fails or produces wrong results
-- medium: a secondary feature is broken or behaves incorrectly in a confusing way
-- low: a noticeable UX problem that affects usability but has a workaround
+- critical 🔴: core functionality is completely broken (e.g. can't sign up, can't log in, page crashes)
+- high 🔴: a primary user action fails or produces wrong results
+- medium 🟠: a secondary feature is broken or behaves incorrectly in a confusing way
+- low 🟢: a noticeable UX problem that affects usability but has a workaround
 
 ## Do NOT report
+- Error logs, console errors, or failed network requests in isolation
 - Minor copy/wording preferences or stylistic opinions
 - Cosmetic font or spacing inconsistencies that don't impair usability
 - Expected redirect behavior (e.g. / → /login when unauthenticated)
 - Missing features or enhancements — only actual broken behavior
 - Anything already documented in user-flows.md as known/expected behavior
 
-For each real bug, provide numbered steps to reproduce so a developer can confirm it.
+For each real bug, provide:
+- A short title
+- A description of what the user experiences (what they see/can't do)
+- Numbered steps to reproduce
+- Root cause if you found it (e.g. from console/network)
 
 When you have finished crawling, call update_user_flows one final time, then output a fenced JSON block as the LAST thing in your response (no text after it). Sort bugs: critical first, then high, medium, low.
 
 \`\`\`json
-{"bugs": [{"title": "...", "severity": "critical|high|medium|low", "description": "...", "url": "...", "steps_to_reproduce": "1. Go to ... 2. Click ... 3. Observe ..."}]}
+{"bugs": [{"title": "...", "severity": "critical|high|medium|low", "description": "...", "url": "...", "steps_to_reproduce": "1. Go to ... 2. Click ... 3. Observe ...", "root_cause": "..."}]}
 \`\`\`
 
 If no bugs are found, output:
@@ -278,21 +292,32 @@ async function main() {
 
   if (iterations >= MAX_ITERATIONS) {
     console.warn('Hit max iterations — forcing final report.');
-    const finalResponse = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
-      messages: [
-        ...messages,
-        { role: 'user', content: 'Call update_user_flows with everything you learned, then output the final bug JSON.' },
-      ],
-      system: SYSTEM_PROMPT,
-    });
-    messages.push({ role: 'assistant', content: finalResponse.content });
-    // handle any tool calls in the forced final response
-    for (const block of finalResponse.content) {
-      if (block.type !== 'tool_use') continue;
-      const customResult = handleCustomTool(block.name, block.input);
-      if (customResult !== null) console.log(`  -> ${block.name} (cleanup)`);
+    messages.push({ role: 'user', content: 'Call update_user_flows with everything you learned, then output the final bug JSON.' });
+
+    // keep looping until end_turn so tool calls (update_user_flows etc.) are handled
+    for (let extra = 0; extra < 10; extra++) {
+      const finalResponse = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4096,
+        tools,
+        messages,
+        system: SYSTEM_PROMPT,
+      });
+      messages.push({ role: 'assistant', content: finalResponse.content });
+
+      if (finalResponse.stop_reason === 'end_turn') break;
+
+      if (finalResponse.stop_reason === 'tool_use') {
+        const toolResults = [];
+        for (const block of finalResponse.content) {
+          if (block.type !== 'tool_use') continue;
+          console.log(`  -> ${block.name} (wrap-up)`);
+          const customResult = handleCustomTool(block.name, block.input);
+          const result = customResult ?? [{ type: 'text', text: 'Tool not available in wrap-up.' }];
+          toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: result });
+        }
+        messages.push({ role: 'user', content: toolResults });
+      }
     }
   }
 
@@ -351,6 +376,8 @@ async function sendEmail(markdownReport, jsonReport) {
   console.log(`Email sent to ${RECIPIENT_EMAIL}`);
 }
 
+const SEVERITY_EMOJI = { critical: '🔴', high: '🔴', medium: '🟠', low: '🟢' };
+
 function buildMarkdown({ url, date, bugs }) {
   const severityOrder = ['critical', 'high', 'medium', 'low'];
   const grouped = Object.fromEntries(severityOrder.map((s) => [s, []]));
@@ -358,29 +385,53 @@ function buildMarkdown({ url, date, bugs }) {
     (grouped[bug.severity] ?? grouped.low).push(bug);
   }
 
+  const criticalCount = (grouped.critical.length + grouped.high.length);
   const lines = [
     `# Bug Report`,
+    ``,
     `**URL:** ${url}`,
     `**Date:** ${new Date(date).toUTCString()}`,
-    `**Total bugs found:** ${bugs.length}`,
-    '',
+    `**Total bugs found:** ${bugs.length} &nbsp;|&nbsp; 🔴 ${criticalCount} high/critical &nbsp;|&nbsp; 🟠 ${grouped.medium.length} medium &nbsp;|&nbsp; 🟢 ${grouped.low.length} low`,
+    ``,
+    `---`,
+    ``,
   ];
 
   for (const severity of severityOrder) {
     const list = grouped[severity];
     if (!list.length) continue;
-    lines.push(`## ${severity.toUpperCase()} (${list.length})`);
+    const emoji = SEVERITY_EMOJI[severity];
+    lines.push(`## ${emoji} ${severity.charAt(0).toUpperCase() + severity.slice(1)} (${list.length})`);
     lines.push('');
     for (const bug of list) {
-      lines.push(`### ${bug.title}`);
-      if (bug.url) lines.push(`**URL:** ${bug.url}`);
-      lines.push(`**Description:** ${bug.description}`);
-      if (bug.steps_to_reproduce) lines.push(`**Steps to reproduce:** ${bug.steps_to_reproduce}`);
+      lines.push(`### ${emoji} ${bug.title}`);
+      lines.push('');
+      if (bug.url) lines.push(`**Page:** ${bug.url}`);
+      lines.push('');
+      lines.push(`**What the user experiences:**`);
+      lines.push(bug.description);
+      lines.push('');
+      if (bug.steps_to_reproduce) {
+        lines.push(`**Steps to reproduce:**`);
+        // ensure each numbered step is on its own line
+        const steps = bug.steps_to_reproduce
+          .split(/(?=\d+\.)/)
+          .map(s => s.trim())
+          .filter(Boolean);
+        for (const step of steps) lines.push(step);
+        lines.push('');
+      }
+      if (bug.root_cause) {
+        lines.push(`**Root cause:**`);
+        lines.push(bug.root_cause);
+        lines.push('');
+      }
+      lines.push('---');
       lines.push('');
     }
   }
 
-  if (bugs.length === 0) lines.push('No bugs found.');
+  if (bugs.length === 0) lines.push('✅ No bugs found.');
   return lines.join('\n');
 }
 
