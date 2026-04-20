@@ -77,6 +77,7 @@ The file must contain two sections:
 - Expected redirect behavior (e.g. / → /login when unauthenticated)
 - Missing features or enhancements — only actual broken behavior
 - Anything already documented in user-flows.md as known/expected behavior
+- Audio or video playback issues — headless browsers do not support media playback, so players will always appear paused or show 0:00 duration even when fully functional. To check audio/video, verify the element exists and has a non-empty src attribute; do not report playback state as a bug
 
 For each real bug, provide:
 - A short title
