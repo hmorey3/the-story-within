@@ -104,9 +104,9 @@
 - **Meditation click:** Opens overlay panel with:
   - Title, subtitle, audio player (HTML `<audio>` element)
   - Description text
-- **Audio player:** Works correctly in real browsers (verified by user). Headless browsers cannot play media so the player will always appear paused/empty — do NOT report audio playback as a bug. Verify only that the `<audio>` element exists and has a non-empty src.
+- **Audio player:** Confirmed working in real browser (17:24 duration loads, playback works). Note: headless browsers cannot play media — check that the `<audio>` element has a non-empty src attribute as a proxy for whether audio is wired up.
 - **Close button on panel:** Does not close the panel (bug observed — same as Members)
-- **Expected outcome:** Meditation panel opens ✅; audio plays in real browser ✅
+- **Expected outcome:** Meditation panel opens ✅; audio plays ✅
 
 ---
 

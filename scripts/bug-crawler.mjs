@@ -30,11 +30,11 @@ You have access to two tools for maintaining a persistent record of how the site
 - \`update_user_flows\`: call this to save your updated knowledge after exploring a section
 
 Use the flows file to:
-- Load context from previous sessions, but treat it as a starting point — not ground truth
-- The site may have changed since the last run; use your judgment to decide if a difference is a bug or an intentional improvement
-- If something behaves differently from a documented flow but seems deliberate and functional, update the flow rather than filing a bug
+- Understand how the site is supposed to work so you can recognize when something is broken
+- The site may have changed since the last run — use your judgment to decide if a difference is a real bug or an intentional improvement
+- If something behaves differently from a documented flow but seems deliberate and functional, update the flow description to reflect the new behavior
 - Record newly discovered pages and flows as you explore
-- Note which flows you verified as working in this session
+- Always test every flow on every run — the file is a reference, not a skip list. Previous documentation that something worked is not a reason to skip testing it now
 
 The file must contain two sections:
 1. **Site Map** — an ASCII tree of all discovered pages and their relationships, e.g.:
