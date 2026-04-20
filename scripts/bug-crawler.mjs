@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { spawn } from 'child_process';
 import { createInterface } from 'readline';
-import { writeFileSync, unlinkSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
@@ -11,7 +11,7 @@ const MAX_ITERATIONS = 30;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const mcpBin = path.resolve(__dirname, 'node_modules/.bin/mcp-server-playwright');
-const AUTH_STATE_PATH = path.resolve(__dirname, '.auth-state.json');
+const USER_FLOWS_PATH = path.resolve(__dirname, 'user-flows.md');
 
 const SYSTEM_PROMPT = `You are a QA engineer doing automated browser testing. Your job is to find real, meaningful bugs — not to nitpick.
 
@@ -24,12 +24,36 @@ const SYSTEM_PROMPT = `You are a QA engineer doing automated browser testing. Yo
 - Do NOT click "invite", "share", or "notify" controls that would contact other people
 - If you accidentally land on a destructive or social action, navigate away immediately without confirming
 
+## User flows knowledge base
+You have access to two tools for maintaining a persistent record of how the site works:
+- \`read_user_flows\`: call this at the start of every session to load the known flows
+- \`update_user_flows\`: call this to save your updated knowledge after exploring a section
+
+Use the flows file to:
+- Understand what behavior is expected before deciding if something is a bug
+- Record newly discovered flows and pages as you explore
+- Update a flow if behavior has changed and it looks intentional (new feature), rather than reporting it as a bug
+- Note which flows you verified as working in this session
+
+The file must contain two sections:
+1. **Site Map** — an ASCII tree of all discovered pages and their relationships, e.g.:
+   / (root)
+   ├── /home
+   ├── /inbox
+   │   └── /inbox/:id  (message thread)
+   ├── /resources
+   │   └── /resources/:slug
+   └── /members
+2. **User Flows** — for each key flow: name, steps, and expected outcome
+
 ## What to test
-- Navigate to pages and follow links
+- Start each session by calling read_user_flows to load context
+- Navigate to pages, open messages, follow links, click interactive elements
 - Take screenshots to check for visual/layout issues
 - Monitor JavaScript console errors
 - Verify that links and resources load correctly (check for 404s, failed requests)
-- Test interactive elements (buttons, forms, navigation) by observing their behavior, not by submitting real data
+- Actually open messages, threads, and modals — don't just check the list view
+- Call update_user_flows periodically as you learn new things about the site
 
 ## Severity definitions — only report bugs that meet these bars
 - critical: core functionality is completely broken (e.g. can't sign up, can't log in, page crashes)
@@ -42,10 +66,11 @@ const SYSTEM_PROMPT = `You are a QA engineer doing automated browser testing. Yo
 - Cosmetic font or spacing inconsistencies that don't impair usability
 - Expected redirect behavior (e.g. / → /login when unauthenticated)
 - Missing features or enhancements — only actual broken behavior
+- Anything already documented in user-flows.md as known/expected behavior
 
 For each real bug, provide numbered steps to reproduce so a developer can confirm it.
 
-When you have finished crawling, output a fenced JSON block as the LAST thing in your response (no text after it). Sort bugs: critical first, then high, medium, low.
+When you have finished crawling, call update_user_flows one final time, then output a fenced JSON block as the LAST thing in your response (no text after it). Sort bugs: critical first, then high, medium, low.
 
 \`\`\`json
 {"bugs": [{"title": "...", "severity": "critical|high|medium|low", "description": "...", "url": "...", "steps_to_reproduce": "1. Go to ... 2. Click ... 3. Observe ..."}]}
@@ -55,6 +80,42 @@ If no bugs are found, output:
 \`\`\`json
 {"bugs": []}
 \`\`\``;
+
+// Custom tools the agent can call directly (not through MCP)
+const CUSTOM_TOOLS = [
+  {
+    name: 'read_user_flows',
+    description: 'Read the persistent user-flows.md file to load known site behavior and flows from previous sessions.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'update_user_flows',
+    description: 'Overwrite user-flows.md with updated content. Call this after discovering new flows, verifying existing ones, or noting behavior changes. Pass the full file content — this replaces the file entirely.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        content: { type: 'string', description: 'Full markdown content to write to user-flows.md' },
+      },
+      required: ['content'],
+    },
+  },
+];
+
+function handleCustomTool(name, input) {
+  if (name === 'read_user_flows') {
+    if (existsSync(USER_FLOWS_PATH)) {
+      const content = readFileSync(USER_FLOWS_PATH, 'utf8');
+      return [{ type: 'text', text: content }];
+    }
+    return [{ type: 'text', text: '(No user-flows.md exists yet — this is the first session. Create one as you explore.)' }];
+  }
+  if (name === 'update_user_flows') {
+    writeFileSync(USER_FLOWS_PATH, input.content);
+    console.log('  [user-flows.md updated]');
+    return [{ type: 'text', text: 'user-flows.md saved.' }];
+  }
+  return null;
+}
 
 // Minimal JSON-RPC stdio client that bypasses MCP SDK schema validation
 class RawMcpClient {
@@ -132,46 +193,36 @@ function normalizeMcpContent(content) {
 async function main() {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const mcpArgs = ['--headless'];
-
-  const sessionCookie = process.env.SESSION_COOKIE;
-  if (sessionCookie) {
-    const domain = new URL(TARGET_URL).hostname;
-    const storageState = {
-      cookies: [{
-        name: 'connect.sid',
-        value: sessionCookie,
-        domain,
-        path: '/',
-        expires: -1,
-        httpOnly: true,
-        secure: true,
-        sameSite: 'Lax',
-      }],
-      origins: [],
-    };
-    writeFileSync(AUTH_STATE_PATH, JSON.stringify(storageState, null, 2));
-    mcpArgs.push('--storage-state', AUTH_STATE_PATH);
-    console.log('Using authenticated session cookie.');
-  }
-
-  const mcpClient = new RawMcpClient(mcpBin, mcpArgs);
+  const mcpClient = new RawMcpClient(mcpBin, ['--headless']);
   await mcpClient.initialize();
 
   const mcpTools = await mcpClient.listTools();
-  const tools = mcpTools.map((t) => ({
-    name: t.name,
-    description: t.description,
-    input_schema: { type: 'object', ...(t.inputSchema ?? {}) },
-  }));
+  const tools = [
+    ...CUSTOM_TOOLS,
+    ...mcpTools.map((t) => ({
+      name: t.name,
+      description: t.description,
+      input_schema: { type: 'object', ...(t.inputSchema ?? {}) },
+    })),
+  ];
 
-  console.log(`Connected to Playwright MCP. ${tools.length} tools available.`);
+  console.log(`Connected to Playwright MCP. ${mcpTools.length} browser tools + ${CUSTOM_TOOLS.length} custom tools available.`);
+
+  // Authenticate via magic link before crawling
+  const magicLink = process.env.MAGIC_LINK;
+  if (magicLink) {
+    console.log('Authenticating via magic link...');
+    await mcpClient.callTool('browser_navigate', { url: magicLink });
+    await new Promise(r => setTimeout(r, 3000));
+    console.log('Magic link auth complete.');
+  }
+
   console.log(`Crawling: ${TARGET_URL}`);
 
   const messages = [
     {
       role: 'user',
-      content: `Crawl ${TARGET_URL} for bugs. Check for: visual/layout issues, broken links (404s), and JavaScript console errors. Be thorough — follow links, check images, and test interactive elements.`,
+      content: `Start by calling read_user_flows to load any known flows from previous sessions. Then crawl ${TARGET_URL} thoroughly: navigate all sections, open individual messages and threads in the inbox, check all interactive elements. As you explore, maintain user-flows.md with (1) an ASCII site map showing all pages and their relationships, and (2) documented user flows with steps and expected outcomes. Update the file as you discover new pages or flows. Report real bugs at the end.`,
     },
   ];
 
@@ -201,13 +252,20 @@ async function main() {
       for (const block of response.content) {
         if (block.type !== 'tool_use') continue;
         console.log(`  -> ${block.name}`);
+
         let result;
-        try {
-          const raw = await mcpClient.callTool(block.name, block.input);
-          result = normalizeMcpContent(raw);
-        } catch (err) {
-          result = [{ type: 'text', text: `Error: ${err.message}` }];
+        const customResult = handleCustomTool(block.name, block.input);
+        if (customResult !== null) {
+          result = customResult;
+        } else {
+          try {
+            const raw = await mcpClient.callTool(block.name, block.input);
+            result = normalizeMcpContent(raw);
+          } catch (err) {
+            result = [{ type: 'text', text: `Error: ${err.message}` }];
+          }
         }
+
         toolResults.push({
           type: 'tool_result',
           tool_use_id: block.id,
@@ -225,15 +283,20 @@ async function main() {
       max_tokens: 4096,
       messages: [
         ...messages,
-        { role: 'user', content: 'Summarize all bugs found so far and output the JSON report now.' },
+        { role: 'user', content: 'Call update_user_flows with everything you learned, then output the final bug JSON.' },
       ],
       system: SYSTEM_PROMPT,
     });
     messages.push({ role: 'assistant', content: finalResponse.content });
+    // handle any tool calls in the forced final response
+    for (const block of finalResponse.content) {
+      if (block.type !== 'tool_use') continue;
+      const customResult = handleCustomTool(block.name, block.input);
+      if (customResult !== null) console.log(`  -> ${block.name} (cleanup)`);
+    }
   }
 
   mcpClient.close();
-  if (existsSync(AUTH_STATE_PATH)) unlinkSync(AUTH_STATE_PATH);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
   const text = (lastAssistant?.content ?? [])
