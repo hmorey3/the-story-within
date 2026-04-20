@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { spawn } from 'child_process';
 import { createInterface } from 'readline';
-import { writeFileSync } from 'fs';
+import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
@@ -11,23 +11,33 @@ const MAX_ITERATIONS = 30;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const mcpBin = path.resolve(__dirname, 'node_modules/.bin/mcp-server-playwright');
+const AUTH_STATE_PATH = path.resolve(__dirname, '.auth-state.json');
 
 const SYSTEM_PROMPT = `You are a QA engineer doing automated browser testing. Your job is to find real, meaningful bugs — not to nitpick.
 
-Use the Playwright tools to:
+## Safety rules — follow these without exception
+- READ ONLY: browse and observe, never submit forms that create or modify real data
+- Do NOT send any messages, chats, posts, or comments to other users or groups
+- Do NOT delete, archive, or modify any content you did not create in this session
+- Do NOT make purchases, trigger payments, or initiate any transactions
+- Do NOT sign up for anything or create accounts
+- Do NOT click "invite", "share", or "notify" controls that would contact other people
+- If you accidentally land on a destructive or social action, navigate away immediately without confirming
+
+## What to test
 - Navigate to pages and follow links
 - Take screenshots to check for visual/layout issues
 - Monitor JavaScript console errors
 - Verify that links and resources load correctly (check for 404s, failed requests)
-- Test interactive elements (buttons, forms, navigation)
+- Test interactive elements (buttons, forms, navigation) by observing their behavior, not by submitting real data
 
-Severity definitions — only report bugs that meet these bars:
+## Severity definitions — only report bugs that meet these bars
 - critical: core functionality is completely broken (e.g. can't sign up, can't log in, page crashes)
 - high: a primary user action fails or produces wrong results
 - medium: a secondary feature is broken or behaves incorrectly in a confusing way
 - low: a noticeable UX problem that affects usability but has a workaround
 
-Do NOT report:
+## Do NOT report
 - Minor copy/wording preferences or stylistic opinions
 - Cosmetic font or spacing inconsistencies that don't impair usability
 - Expected redirect behavior (e.g. / → /login when unauthenticated)
@@ -122,7 +132,30 @@ function normalizeMcpContent(content) {
 async function main() {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const mcpClient = new RawMcpClient(mcpBin, ['--headless']);
+  const mcpArgs = ['--headless'];
+
+  const sessionCookie = process.env.SESSION_COOKIE;
+  if (sessionCookie) {
+    const domain = new URL(TARGET_URL).hostname;
+    const storageState = {
+      cookies: [{
+        name: 'connect.sid',
+        value: sessionCookie,
+        domain,
+        path: '/',
+        expires: -1,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Lax',
+      }],
+      origins: [],
+    };
+    writeFileSync(AUTH_STATE_PATH, JSON.stringify(storageState, null, 2));
+    mcpArgs.push('--storage-state', AUTH_STATE_PATH);
+    console.log('Using authenticated session cookie.');
+  }
+
+  const mcpClient = new RawMcpClient(mcpBin, mcpArgs);
   await mcpClient.initialize();
 
   const mcpTools = await mcpClient.listTools();
@@ -200,6 +233,7 @@ async function main() {
   }
 
   mcpClient.close();
+  if (existsSync(AUTH_STATE_PATH)) unlinkSync(AUTH_STATE_PATH);
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
   const text = (lastAssistant?.content ?? [])
