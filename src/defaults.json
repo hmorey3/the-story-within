@@ -4,43 +4,65 @@
       "id": "book-courage",
       "title": "Courage",
       "beats": [
-        { "id": "call-to-adventure", "note": "" },
-        { "id": "facing-the-dragon", "note": "" },
-        { "id": "treasure", "note": "" }
+        { "id": "protagonist-role",           "note": "" },
+        { "id": "shift-broke",                "note": "" },
+        { "id": "quest-becoming",             "note": "" },
+        { "id": "allies-holds",               "note": "" },
+        { "id": "challenge-external",         "note": "" },
+        { "id": "transformation-rupture",     "note": "" },
+        { "id": "legacy-creating",            "note": "" }
       ]
     },
     {
       "id": "book-growth",
       "title": "Growth",
       "beats": [
-        { "id": "strange-omen", "note": "" },
-        { "id": "wizard", "note": "" },
-        { "id": "maiden", "note": "" }
+        { "id": "protagonist-wound",          "note": "" },
+        { "id": "shift-revealed",             "note": "" },
+        { "id": "quest-becoming",             "note": "" },
+        { "id": "allies-reflects",            "note": "" },
+        { "id": "challenge-internal",         "note": "" },
+        { "id": "transformation-integration", "note": "" },
+        { "id": "legacy-healing",             "note": "" }
       ]
     },
     {
       "id": "book-awakening",
       "title": "Awakening",
       "beats": [
-        { "id": "descend-into-abyss", "note": "" },
-        { "id": "treasure", "note": "" }
+        { "id": "protagonist-world",          "note": "" },
+        { "id": "shift-accumulated",          "note": "" },
+        { "id": "quest-escape",               "note": "" },
+        { "id": "allies-expands",             "note": "" },
+        { "id": "challenge-gravity",          "note": "" },
+        { "id": "transformation-contact",     "note": "" },
+        { "id": "legacy-resisting",           "note": "" }
       ]
     },
     {
       "id": "book-rebirth",
       "title": "Rebirth",
       "beats": [
-        { "id": "maiden", "note": "" },
-        { "id": "facing-the-dragon", "note": "" }
+        { "id": "protagonist-belief",         "note": "" },
+        { "id": "shift-drifted",              "note": "" },
+        { "id": "quest-becoming",             "note": "" },
+        { "id": "allies-holds",               "note": "" },
+        { "id": "challenge-environment",      "note": "" },
+        { "id": "transformation-loss",        "note": "" },
+        { "id": "legacy-witnessing",          "note": "" }
       ]
     },
     {
       "id": "book-trials",
       "title": "Trials",
       "beats": [
-        { "id": "call-to-adventure", "note": "" },
-        { "id": "strange-omen", "note": "" },
-        { "id": "descend-into-abyss", "note": "" }
+        { "id": "protagonist-wound",          "note": "" },
+        { "id": "shift-broke",                "note": "" },
+        { "id": "quest-justice",              "note": "" },
+        { "id": "allies-reflects",            "note": "" },
+        { "id": "challenge-external",         "note": "" },
+        { "id": "transformation-loss",        "note": "" },
+        { "id": "legacy-creating",            "note": "" }
       ]
     }
   ]

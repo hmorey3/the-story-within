@@ -3,6 +3,7 @@ import type { BeatId } from './storyCatalog'
 export type StoryBeatEntry = {
   id: BeatId
   note: string
+  label?: string // AI-generated display name for this beat
 }
 
 export type Book = {

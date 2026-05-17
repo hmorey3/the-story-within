@@ -9,6 +9,21 @@ export const titleOptions = [
   'Awakening',
   'Rebirth',
   'Trials',
+  'Becoming',
+  'The Return',
+  'Surrender',
+  'Threshold',
+  'Descent',
+  'Reckoning',
+  'Emergence',
+  'Liberation',
+  'Endurance',
+  'Homecoming',
+  'Resilience',
+  'The Crossing',
+  'Breaking Open',
+  'Solitude',
+  'Reclaiming',
 ] as const
 
 export type TitleOption = (typeof titleOptions)[number]
@@ -19,30 +34,67 @@ export const virtueGlyphs: Record<TitleOption, string> = {
   Awakening: moonGlyph,
   Rebirth: birdGlyph,
   Trials: sunGlyph,
+  Becoming: sproutGlyph,
+  'The Return': birdGlyph,
+  Surrender: birdGlyph,
+  Threshold: moonGlyph,
+  Descent: moonGlyph,
+  Reckoning: sunGlyph,
+  Emergence: sproutGlyph,
+  Liberation: moonGlyph,
+  Endurance: sunGlyph,
+  Homecoming: sproutGlyph,
+  Resilience: birdGlyph,
+  'The Crossing': moonGlyph,
+  'Breaking Open': birdGlyph,
+  Solitude: moonGlyph,
+  Reclaiming: sproutGlyph,
 }
 
+export type StoryBeatCategory =
+  | 'Protagonist'
+  | 'Shift'
+  | 'Quest'
+  | 'Allies'
+  | 'Challenge'
+  | 'Transformation'
+  | 'Legacy'
+
 export const beatIds = [
-  'ordinary-world',
-  'maiden',
-  'call-to-adventure',
-  'strange-omen',
-  'refusal-of-the-call',
-  'meeting-the-mentor',
-  'wizard',
-  'crossing-the-threshold',
-  'tests-allies-enemies',
-  'descend-into-abyss',
-  'approach-to-the-inmost-cave',
-  'ordeal',
-  'facing-the-dragon',
-  'reward',
-  'treasure',
-  'the-road-back',
-  'resurrection',
-  'return-with-the-elixir',
-  'departure-unknown',
-  'initiation-unknown',
-  'return-unknown',
+  // Protagonist — identity before the story began
+  'protagonist-world',
+  'protagonist-role',
+  'protagonist-wound',
+  'protagonist-belief',
+  // Shift — the disruption that changed the ordinary world
+  'shift-broke',
+  'shift-accumulated',
+  'shift-revealed',
+  'shift-drifted',
+  // Quest — what they were actually after
+  'quest-escape',
+  'quest-becoming',
+  'quest-justice',
+  'quest-belonging',
+  // Allies — who or what helped
+  'allies-reflects',
+  'allies-expands',
+  'allies-holds',
+  // Challenge — what opposed them
+  'challenge-external',
+  'challenge-environment',
+  'challenge-internal',
+  'challenge-gravity',
+  // Transformation — how change happened
+  'transformation-rupture',
+  'transformation-loss',
+  'transformation-integration',
+  'transformation-contact',
+  // Legacy — what they carry forward
+  'legacy-healing',
+  'legacy-witnessing',
+  'legacy-creating',
+  'legacy-resisting',
 ] as const
 
 export type BeatId = (typeof beatIds)[number]

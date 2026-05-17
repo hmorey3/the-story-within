@@ -1,96 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@300;400&display=swap');
+
 .site-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #ffffff;
-  border-bottom: 1px solid #eee6dd;
-  box-shadow: 0 10px 30px rgba(31, 23, 14, 0.08);
+  padding: 0 1.5rem;
+  background: #faf8f5;
+  border-bottom: 1px solid #e8e0d8;
 }
 
-.navbar {
+.h3-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.35rem 2.5rem;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.navbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.navbar__brand img {
-  height: 40px;
-  width: auto;
-  display: block;
-}
-
-.navbar__links {
+.h3-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2d2820;
+  line-height: 1;
+  white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 2.5rem;
-  font-size: 1.1rem;
-  letter-spacing: 0.01em;
-}
-
-.navbar__link {
-  color: #5a4f43;
-  text-decoration: none;
-  font-weight: 500;
+  gap: 11px;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: inherit;
-  display: inline-flex;
+}
+
+.h3-title svg {
+  opacity: 0.35;
+  color: #2d2820;
+  flex-shrink: 0;
+}
+
+.h3-nav {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  position: relative;
+  gap: 1.5rem;
 }
 
-.navbar__link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -0.4rem;
-  width: 100%;
-  height: 1px;
-  background: #cbbca9;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 200ms ease;
+.h3-nav-link {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a6f63;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 
-.navbar__link:hover::after,
-.navbar__link:focus-visible::after {
-  transform: scaleX(1);
+.h3-nav-link:hover {
+  color: #2d2820;
 }
 
-.navbar__caret {
-  font-size: 0.85rem;
-  transform: translateY(1px);
+.h3-nav-cta {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #2d2820;
+  background: none;
+  border: 0.5px solid #2d2820;
+  padding: 6px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-@media (max-width: 900px) {
-  .navbar {
-    padding: 1.25rem 1.5rem;
+.h3-nav-cta:hover {
+  background: #2d2820;
+  color: #faf8f5;
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    top: 0.75rem;
+    padding: 0 0.75rem;
   }
 
-  .navbar__links {
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .navbar {
-    flex-direction: column;
-    gap: 1rem;
+  .h3-inner {
+    padding: 0.75rem 1rem;
   }
 
-  .navbar__links {
-    font-size: 1rem;
+  .h3-title {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+  }
+
+  .h3-nav {
+    gap: 0.75rem;
+  }
+
+  .h3-nav-link {
+    display: none;
   }
 }

@@ -1,10 +1,7 @@
 import type { StoryBeatCategory } from '../data/storyBeats'
 import type { BeatId } from '../data/storyCatalog'
 
-export type PromptSuggestion = {
-  label: string
-  mode: 'answer' | 'prefix'
-}
+// --- Legacy types (still used by chatbotBooks.ts) ---
 
 export type BeatRecommendation = {
   category: StoryBeatCategory
@@ -13,18 +10,15 @@ export type BeatRecommendation = {
   summary: string
 }
 
-export type TitleRecommendation = {
-  title: string
-  rationale: string
+// --- New types for beat extraction ---
+
+export type ExtractedBeat = {
+  beatId: string
+  label: string
+  summary: string
 }
 
-export type ChatbotApiResponse = {
-  fulfilledCategories: StoryBeatCategory[]
-  missingCategories: StoryBeatCategory[]
-  beatRecommendations: BeatRecommendation[]
-  titleRecommendation: TitleRecommendation | null
-  nextQuestionFromAI: string
-  summary: string
-  promptSuggestionsForUser: PromptSuggestion[]
-  isComplete: boolean
+export type BeatExtractionResponse = {
+  beats: ExtractedBeat[]
+  title: string
 }

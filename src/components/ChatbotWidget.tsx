@@ -1,137 +1,60 @@
-import { useEffect, useRef, useState } from 'react'
-import { formatPromptLabel } from '../services/chatbotPrompts'
-import { useChatbotSession } from '../hooks/useChatbotSession'
+import { AssistantRuntimeProvider } from '@assistant-ui/react'
+import { useStoryRuntime } from '../chatbot/useStoryRuntime'
+import { ChatbotPanel } from '../chatbot/ChatbotPanel'
 import './ChatbotWidget.css'
 
 type ChatbotWidgetProps = {
+  isOpen: boolean
+  onClose: () => void
   onOpenStoryBeats: (bookId: string) => void
 }
 
-function ChatbotWidget({ onOpenStoryBeats }: ChatbotWidgetProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+type ChatSessionProps = {
+  onComplete: (bookId: string) => void
+  onClose: () => void
+}
 
-  const {
-    inputValue,
-    setInputValue,
-    messages,
-    pendingResponse,
-    promptSuggestionsForUser,
-    submitMessage,
-  } = useChatbotSession({
-    isOpen,
-    onComplete: (bookId) => {
-      onOpenStoryBeats(bookId)
-      setIsOpen(false)
-    },
-  })
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  useEffect(() => {
-    if (isOpen) {
-      inputRef.current?.focus()
-    }
-  }, [isOpen, messages])
-
-  const handleClose = () => {
-    setIsOpen(false)
-  }
+function ChatSession({ onComplete, onClose }: ChatSessionProps) {
+  const { runtime, dimensionIndex, showOptions, showPronounOptions, showComposer, composerLarge, showSkipElaboration, onChoice, skipElaboration } =
+    useStoryRuntime({ onComplete })
 
   return (
-    <div className={`chatbot ${isOpen ? 'chatbot--open' : ''}`}>
-      <button
-        className="chatbot__toggle"
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-label={isOpen ? 'Close story chatbot' : 'Open story chatbot'}
-      >
-        <span aria-hidden="true">✦</span>
-      </button>
-      {isOpen && (
-        <div className="chatbot__panel" role="dialog" aria-label="Story chatbot">
-          <header className="chatbot__header">
-            <p className="chatbot__title">Story Guide</p>
-            <button
-              className="chatbot__close"
-              type="button"
-              onClick={handleClose}
-              aria-label="Close chatbot"
-            >
-              ×
-            </button>
-          </header>
-          <div className="chatbot__messages">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`chatbot__message chatbot__message--${message.role}`}
-              >
-                <p>{message.content}</p>
-              </div>
-            ))}
-            {pendingResponse && (
-              <div className="chatbot__message chatbot__message--assistant">
-                <p>Typing…</p>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          {promptSuggestionsForUser.length > 0 && (
-            <div className="chatbot__pills" aria-label="Suggested prompts">
-              {promptSuggestionsForUser.map((suggestion, index) => (
-                <button
-                  key={`${suggestion.label}-${suggestion.mode}-${index}`}
-                  type="button"
-                  className="chatbot__pill"
-                  onClick={() => {
-                    if (suggestion.mode === 'answer') {
-                      submitMessage(suggestion.label)
-                      return
-                    }
+    <AssistantRuntimeProvider runtime={runtime}>
+      <div className="chatbot__panel" role="dialog" aria-label="Story chatbot">
+        <button
+          className="chatbot__close"
+          type="button"
+          onClick={onClose}
+          aria-label="Close chatbot"
+        >
+          ×
+        </button>
+        <ChatbotPanel
+          dimensionIndex={dimensionIndex}
+          showOptions={showOptions}
+          showPronounOptions={showPronounOptions}
+          showComposer={showComposer}
+          composerLarge={composerLarge}
+          showSkipElaboration={showSkipElaboration}
+          onChoice={onChoice}
+          onSkipElaboration={skipElaboration}
+        />
+      </div>
+    </AssistantRuntimeProvider>
+  )
+}
 
-                    // Strip trailing ellipsis/dots so user can type immediately
-                    const nextValue = suggestion.label.trim().replace(/\.{2,}$|…$/g, '')
-                    setInputValue(nextValue ? `${nextValue} ` : '')
-                    inputRef.current?.focus()
-                  }}
-                >
-                  {formatPromptLabel(suggestion)}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="chatbot__input-row">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
-              placeholder="Type your response..."
-              disabled={pendingResponse}
-              aria-label="Chat input"
-              ref={inputRef}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault()
-                  submitMessage()
-                }
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => submitMessage()}
-              disabled={pendingResponse || !inputValue.trim()}
-              aria-label="Send message"
-            >
-              Send
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+function ChatbotWidget({ isOpen, onClose, onOpenStoryBeats }: ChatbotWidgetProps) {
+  if (!isOpen) return null
+
+  return (
+    <ChatSession
+      onComplete={(bookId) => {
+        onOpenStoryBeats(bookId)
+        onClose()
+      }}
+      onClose={onClose}
+    />
   )
 }
 

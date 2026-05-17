@@ -15,81 +15,6 @@
   color: #4b4742;
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #ffffff;
-  border-bottom: 1px solid #eee6dd;
-  box-shadow: 0 10px 30px rgba(31, 23, 14, 0.08);
-}
-
-.navbar {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.35rem 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navbar__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.navbar__brand img {
-  height: 40px;
-  width: auto;
-  display: block;
-}
-
-.navbar__links {
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
-  font-size: 1.1rem;
-  letter-spacing: 0.01em;
-}
-
-.navbar__link {
-  color: #5a4f43;
-  text-decoration: none;
-  font-weight: 500;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-}
-
-.navbar__link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -0.4rem;
-  width: 100%;
-  height: 1px;
-  background: #cbbca9;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 200ms ease;
-}
-
-.navbar__link:hover::after,
-.navbar__link:focus-visible::after {
-  transform: scaleX(1);
-}
-
-.navbar__caret {
-  font-size: 0.85rem;
-  transform: translateY(1px);
-}
 
 .page {
   max-width: 1200px;
@@ -102,14 +27,10 @@
 
 .bookshelf {
   display: grid;
-  grid-template-columns: repeat(
-    5,
-    minmax(170px, 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(170px, 220px));
   grid-auto-rows: minmax(420px, 1fr);
   gap: 5rem 0;
   width: 100%;
-  margin: 0 auto;
   justify-content: center;
   align-content: start;
 }
@@ -121,56 +42,40 @@
   padding: 3rem 1.75rem;
 }
 
-.bookshelf__slot:not(:nth-child(5n + 1)) {
+.bookshelf__slot:not(:first-child) {
   border-left: 1px solid #ded6cb;
 }
 
-.bookshelf__slot--add {
+.bookshelf__slot--new {
+  padding: 0;
+}
+
+.bookshelf__new-button {
+  width: 100%;
+  height: 100%;
   border: none;
   background: transparent;
-  padding: 3rem 1.75rem;
   cursor: pointer;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  padding: 3rem 1.75rem;
+  color: #d4c9bc;
+  transition: color 0.2s ease;
 }
 
-.bookshelf__slot--add:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.bookshelf__new-button:hover {
+  color: #b8973e;
 }
 
-.bookshelf__edit-toggle,
-.bookshelf__add-button,
-.bookshelf__cancel-edit {
-  font-size: var(--edit-icon-size);
-  color: var(--ink-muted);
-  font-weight: 400;
-  background: transparent;
-  border: none;
-  cursor: pointer;
+.bookshelf__new-icon {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
 }
 
-.bookshelf :is(
-  .bookshelf__edit-toggle,
-  .bookshelf__add-button,
-  .bookshelf__cancel-edit,
-  .bookshelf__delete
-):hover {
+.bookshelf__delete:hover {
   color: var(--ink-hover);
-}
-
-.bookshelf__edit-toggle,
-.bookshelf__add-button {
-  line-height: 1;
-}
-
-.bookshelf__cancel-edit {
-  position: absolute;
-  bottom: 8rem;
-  line-height: 1;
 }
 
 .bookshelf__slot--book {
@@ -330,6 +235,74 @@
   background: #3d342a;
   color: #ffffff;
   border-color: transparent;
+}
+
+.bookshelf__confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 23, 14, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.bookshelf__confirm-card {
+  background: #faf8f5;
+  border: 1px solid #ddd5c8;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 20px 40px rgba(31, 23, 14, 0.15);
+  min-width: min(320px, 80vw);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.bookshelf__confirm-text {
+  margin: 0;
+  font-size: 1rem;
+  color: #3d342a;
+  line-height: 1.5;
+}
+
+.bookshelf__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.bookshelf__confirm-cancel {
+  background: none;
+  border: 1px solid #ddd5c8;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #5a4f43;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bookshelf__confirm-cancel:hover {
+  background: #f0ebe4;
+}
+
+.bookshelf__confirm-delete {
+  background: #3d342a;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #faf8f5;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.bookshelf__confirm-delete:hover {
+  background: #5a4030;
 }
 
 @media (max-width: 900px) {

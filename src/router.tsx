@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import LibraryPage from './pages/LibraryPage'
+import AboutPage from './pages/AboutPage'
 import StoryBeatsCarousel from './pages/StoryBeatsCarousel'
 import ChatbotWidget from './components/ChatbotWidget'
 
@@ -16,6 +17,7 @@ function AppRouter() {
   const [pathname, setPathname] = useState(
     window.location.pathname || '/',
   )
+  const [chatbotOpen, setChatbotOpen] = useState(false)
 
   const navigate = (path: string) => {
     if (path === pathname) {
@@ -36,17 +38,19 @@ function AppRouter() {
   const storyBeatId = getStoryBeatId(pathname)
   if (storyBeatId) {
     return (
-      <>
-        <StoryBeatsCarousel
-          bookId={storyBeatId}
-          onClose={() => navigate('/')}
-        />
-        <ChatbotWidget
-          onOpenStoryBeats={(bookId) =>
-            navigate(`/story-beats/${encodeURIComponent(bookId)}`)
-          }
-        />
-      </>
+      <StoryBeatsCarousel
+        bookId={storyBeatId}
+        onClose={() => navigate('/')}
+      />
+    )
+  }
+
+  if (pathname === '/about') {
+    return (
+      <AboutPage
+        onHome={() => navigate('/')}
+        onCreateStory={() => { navigate('/'); setChatbotOpen(true) }}
+      />
     )
   }
 
@@ -56,8 +60,12 @@ function AppRouter() {
         onOpenStoryBeats={(bookId) =>
           navigate(`/story-beats/${encodeURIComponent(bookId)}`)
         }
+        onOpenChatbot={() => setChatbotOpen(true)}
+        onOpenAbout={() => navigate('/about')}
       />
       <ChatbotWidget
+        isOpen={chatbotOpen}
+        onClose={() => setChatbotOpen(false)}
         onOpenStoryBeats={(bookId) =>
           navigate(`/story-beats/${encodeURIComponent(bookId)}`)
         }

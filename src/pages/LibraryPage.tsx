@@ -1,28 +1,19 @@
 import { useEffect, useState } from 'react'
 import Header from '../components/Header'
-import Modal from '../components/Modal'
-import defaults from '../defaults.json'
-import { titleOptions, virtueGlyphs, type DefaultsConfig } from '../data/storyCatalog'
+import { virtueGlyphs } from '../data/storyCatalog'
 import type { TitleOption } from '../data/storyCatalog'
-import {
-  createBookId,
-  readStoredBooks,
-  writeStoredBooks,
-} from '../data/books'
+import { readStoredBooks, writeStoredBooks } from '../data/books'
 import type { Book } from '../data/books'
 import './LibraryPage.css'
 
 type LibraryPageProps = {
   onOpenStoryBeats: (bookId: string) => void
+  onOpenChatbot: () => void
+  onOpenAbout: () => void
 }
 
-const { books: defaultBooks } = defaults as DefaultsConfig
-
-function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
+function LibraryPage({ onOpenStoryBeats, onOpenChatbot, onOpenAbout }: LibraryPageProps) {
   const [books, setBooks] = useState<Book[]>([])
-  const [isPromptOpen, setIsPromptOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [selectedVirtue, setSelectedVirtue] = useState<TitleOption>(titleOptions[0])
 
   const volumeCounts = books.reduce<Record<string, number>>((acc, book) => {
     acc[book.title] = (acc[book.title] ?? 0) + 1
@@ -35,84 +26,34 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
       setBooks(stored)
       return
     }
-
-    const seeded = [...defaultBooks]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3)
-    writeStoredBooks(seeded)
-    setBooks(seeded)
+    // No stories yet — open the chatbot automatically
+    onOpenChatbot()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const addBook = (virtue: string) => {
-    const newBook: Book = {
-      id: createBookId(),
-      title: virtue,
-      beats: [],
-    }
-    const next = [newBook, ...books]
-    setBooks(next)
-    writeStoredBooks(next)
-  }
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const deleteBook = (bookId: string) => {
     const next = books.filter((book) => book.id !== bookId)
     setBooks(next)
     writeStoredBooks(next)
-    if (next.length === 0) {
-      setIsEditMode(false)
-    }
-  }
-
-  const handleAdd = () => {
-    if (!selectedVirtue) {
-      setIsPromptOpen(false)
-      return
-    }
-    addBook(selectedVirtue)
-    setIsPromptOpen(false)
-    setIsEditMode(false)
-  }
-
-  const openPrompt = () => {
-    setSelectedVirtue(titleOptions[0])
-    setIsPromptOpen(true)
+    setConfirmDeleteId(null)
   }
 
   return (
     <div className="app">
-      <Header />
+      <Header onCreateStory={onOpenChatbot} onHome={() => {}} onAbout={onOpenAbout} />
       <main className="page">
         <section className="bookshelf" aria-label="Bookshelf">
-          <div className="bookshelf__slot bookshelf__slot--add">
-            {!isEditMode ? (
-              <button
-                className="bookshelf__edit-toggle"
-                type="button"
-                onClick={() => setIsEditMode(true)}
-                aria-label="Enter edit mode"
-              >
-                ◎
-              </button>
-            ) : (
-              <>
-                <button
-                  className="bookshelf__add-button"
-                  type="button"
-                  onClick={openPrompt}
-                  aria-label="Add a new book"
-                >
-                  +
-                </button>
-                <button
-                  className="bookshelf__cancel-edit"
-                  type="button"
-                  onClick={() => setIsEditMode(false)}
-                  aria-label="Exit edit mode"
-                >
-                  ×
-                </button>
-              </>
-            )}
+          <div className="bookshelf__slot bookshelf__slot--new">
+            <button
+              className="bookshelf__new-button"
+              type="button"
+              onClick={onOpenChatbot}
+              aria-label="Create a new story"
+            >
+              <span className="bookshelf__new-icon">+</span>
+            </button>
           </div>
 
           {books.map((book) => (
@@ -120,16 +61,14 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
               className="bookshelf__slot bookshelf__slot--book"
               key={book.id}
             >
-              {isEditMode && (
-                <button
-                  className="bookshelf__delete"
-                  type="button"
-                  onClick={() => deleteBook(book.id)}
-                  aria-label={`Delete ${book.title}`}
-                >
-                  ×
-                </button>
-              )}
+              <button
+                className="bookshelf__delete"
+                type="button"
+                onClick={() => setConfirmDeleteId(book.id)}
+                aria-label={`Delete ${book.title}`}
+              >
+                ×
+              </button>
               <button
                 className="bookshelf__book-button"
                 type="button"
@@ -154,37 +93,31 @@ function LibraryPage({ onOpenStoryBeats }: LibraryPageProps) {
             </div>
           ))}
         </section>
-
-        {isPromptOpen && (
-          <Modal
-            title="Add a virtue"
-            actions={
-              <>
-                <button type="button" onClick={() => setIsPromptOpen(false)}>
-                  Cancel
-                </button>
-                <button type="button" onClick={handleAdd}>
-                  Add
-                </button>
-              </>
-            }
-          >
-            <label className="modal-field">
-              Choose a title
-              <select
-                value={selectedVirtue}
-                onChange={(e) => setSelectedVirtue(e.target.value as TitleOption)}
-              >
-                {titleOptions.map((virtue) => (
-                  <option value={virtue} key={virtue}>
-                    {virtue}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </Modal>
-        )}
       </main>
+
+      {confirmDeleteId && (
+        <div className="bookshelf__confirm-overlay" onClick={() => setConfirmDeleteId(null)}>
+          <div className="bookshelf__confirm-card" onClick={(e) => e.stopPropagation()}>
+            <p className="bookshelf__confirm-text">Delete this story? This cannot be undone.</p>
+            <div className="bookshelf__confirm-actions">
+              <button
+                className="bookshelf__confirm-cancel"
+                type="button"
+                onClick={() => setConfirmDeleteId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bookshelf__confirm-delete"
+                type="button"
+                onClick={() => deleteBook(confirmDeleteId)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
